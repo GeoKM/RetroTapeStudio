@@ -1,0 +1,340 @@
+
+TA0013.TAP created by STP2TAP 0.02 on Fri Jan 02 00:43:40 1998
+
+Options are as follows:
+  No rewind at beginning and end.
+  Copy all blocks.
+  Copy until EOD.
+
+---------------------------------------------
+TA0013
+RSTS/E 9.7 Installer
+
+---------------------------------------------
+
+Reading...
+
+1 x 2062 bytes
+1 x 512 bytes
+Tapemark hit at block 8071936
+1 x 14 bytes
+620 x 512 bytes
+Tapemark hit at block 8071936
+1 x 14 bytes
+16 x 512 bytes
+Tapemark hit at block 8071936
+1 x 14 bytes
+9 x 512 bytes
+Tapemark hit at block 8071936
+1 x 14 bytes
+115 x 512 bytes
+Tapemark hit at block 8071936
+1 x 14 bytes
+654 x 512 bytes
+Tapemark hit at block 8071936
+1 x 14 bytes
+114 x 512 bytes
+Tapemark hit at block 8071936
+1 x 14 bytes
+8 x 512 bytes
+Tapemark hit at block 8071936
+1 x 14 bytes
+7 x 512 bytes
+Tapemark hit at block 8071936
+1 x 14 bytes
+6 x 512 bytes
+Tapemark hit at block 8071936
+1 x 14 bytes
+1 x 512 bytes
+Tapemark hit at block 8071936
+1 x 14 bytes
+54 x 512 bytes
+Tapemark hit at block 8071936
+1 x 14 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+14 x 2048 bytes
+1 x 0 bytes
+142 x 2048 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+316 x 2048 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+203 x 2048 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+11 x 2048 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+650 x 2048 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+226 x 2048 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+8 x 2048 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+354 x 2048 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+196 x 2048 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+215 x 2048 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+484 x 2048 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+739 x 2048 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+325 x 2048 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+405 x 2048 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+266 x 2048 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+70 x 2048 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+62 x 2048 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+605 x 2048 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+601 x 2048 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+183 x 2048 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+196 x 2048 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+378 x 2048 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+114 x 2048 bytes
+1 x 0 bytes
+598 x 2048 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+587 x 2048 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+110 x 2048 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+325 x 2048 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+199 x 2048 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+64 x 2048 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+1 x 2048 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+154 x 2048 bytes
+1 x 0 bytes
+45 x 2048 bytes
+1 x 0 bytes
+6 x 2048 bytes
+1 x 0 bytes
+390 x 2048 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+1 x 2048 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+273 x 2048 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+880 x 2048 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+1 x 2048 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+70 x 2048 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+1 x 2048 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+5 x 2048 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+602 x 2048 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+129 x 2048 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+30 x 2048 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+1 x 2048 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+55 x 2048 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+364 x 2048 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+1 x 2048 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+23 x 2048 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+Tapemark hit at block 8071936
+
+End of data hit at 3542619
+
+Finished reading at Fri Jan 02 00:49:34 1998
+

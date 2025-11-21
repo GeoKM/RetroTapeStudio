@@ -1,0 +1,83 @@
+
+TA0113J.TAP created by STP2TAP 0.02 on Sun Oct 26 17:17:50 2025
+
+Options are as follows:
+  No rewind at beginning and end.
+  Copy all blocks.
+  Copy until EOD.
+
+---------------------------------------------
+Cadbury - Kitchen Assortments Moniutoring System
+RSX11M v4.2 TAPE no.104
+DL0: 25-11-92 [1/2]
+BAKED ON 25.10.2025 @ 65c for 17 HOURS by AF
+---------------------------------------------
+
+Reading...
+
+1 x 80 bytes
+1 x 512 bytes
+2 x 80 bytes
+Tapemark hit at block 8071936
+1 x 80 bytes
+2 x 512 bytes
+1 x 80 bytes
+1 x 512 bytes
+1 x 80 bytes
+1 x 512 bytes
+1 x 80 bytes
+1 x 512 bytes
+1 x 80 bytes
+1 x 512 bytes
+2 x 80 bytes
+1 x 512 bytes
+4 x 80 bytes
+1 x 512 bytes
+1 x 80 bytes
+5 x 512 bytes
+1 x 80 bytes
+1 x 512 bytes
+1 x 80 bytes
+1 x 512 bytes
+1 x 80 bytes
+1 x 512 bytes
+1 x 80 bytes
+2 x 512 bytes
+1 x 80 bytes
+1 x 512 bytes
+2 x 80 bytes
+1 x 512 bytes
+1 x 80 bytes
+1 x 4096 bytes
+1 x 1536 bytes
+1 x 80 bytes
+1 x 1536 bytes
+1 x 80 bytes
+1 x 2048 bytes
+2 x 80 bytes
+1 x 2048 bytes
+4 x 80 bytes
+1 x 1024 bytes
+1 x 80 bytes
+17 x 4096 bytes
+1 x 1024 bytes
+1 x 80 bytes
+1 x 1024 bytes
+1 x 80 bytes
+3 x 4096 bytes
+1 x 80 bytes
+1 x 4096 bytes
+1 x 1536 bytes
+1 x 80 bytes
+7 x 4096 bytes
+1 x 3072 bytes
+2 x 80 bytes
+1411 x 4144 bytes
+1 x 3120 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+Tapemark hit at block 8071936
+Drive went not-ready.  Exiting.
+Finished reading at Sun Oct 26 17:18:49 2025
+

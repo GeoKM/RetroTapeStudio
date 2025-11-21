@@ -1,0 +1,36 @@
+//! Shared test utilities and fixture loading helpers.
+//! External fixtures should be placed under `tests/data/`; outputs belong in `tests/output/`.
+use std::fs;
+use std::path::{Path, PathBuf};
+
+use retro_tape_studio_v6_safe::log::parse::parse_log;
+use retro_tape_studio_v6_safe::tap::reader::{read_tap_entry, TapEntry};
+use retro_tape_studio_v6_safe::TapeResult;
+
+pub fn fixture_path(name: &str) -> PathBuf {
+    Path::new("tests").join("data").join(name)
+}
+
+pub fn load_tap_fixture(name: &str) -> Vec<u8> {
+    fs::read(fixture_path(name)).expect("fixture TAP missing")
+}
+
+pub fn load_log_fixture(name: &str) -> String {
+    fs::read_to_string(fixture_path(name)).expect("fixture LOG missing")
+}
+
+/// Chunk a TAP file into entries using 512-byte blocks.
+pub fn read_tap_file_with_chunks(bytes: &[u8]) -> TapeResult<Vec<TapEntry>> {
+    let mut entries = Vec::new();
+    for chunk in bytes.chunks(512) {
+        if chunk.is_empty() {
+            continue;
+        }
+        entries.push(read_tap_entry(chunk)?);
+    }
+    Ok(entries)
+}
+
+pub fn parse_log_path(path: &Path) -> TapeResult<retro_tape_studio_v6_safe::log::parse::LogData> {
+    parse_log(path)
+}
