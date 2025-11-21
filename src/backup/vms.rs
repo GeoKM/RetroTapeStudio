@@ -1,3 +1,4 @@
+//! VMS BACKUP parsing for Phase-1 savesets: block headers, FH2/XH2 metadata, directory entries, and helpers.
 use std::convert::TryInto;
 
 use crate::{TapeError, TapeResult};

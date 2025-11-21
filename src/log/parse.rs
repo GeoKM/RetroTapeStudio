@@ -1,3 +1,4 @@
+//! LOG parsing: classify lines by severity, collect drive metadata, and correlate with TAP records.
 use std::collections::HashMap;
 use std::fs;
 use std::path::Path;

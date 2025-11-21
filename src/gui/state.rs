@@ -1,3 +1,4 @@
+//! Shared GUI state structures and active tab tracking.
 use crate::backup::extract::{VmsFile, VmsFileSystem};
 use crate::gui::extraction::ExtractionState;
 use crate::log::parse::LogData;

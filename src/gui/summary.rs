@@ -1,3 +1,4 @@
+//! Summary tab: presents aggregates and an export-to-text action for the current save-set.
 use egui::{self, Grid};
 use rfd::FileDialog;
 

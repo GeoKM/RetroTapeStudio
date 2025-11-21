@@ -1,3 +1,4 @@
+//! App shell: wires together all tabs and routes shared state.
 use egui::{self, CentralPanel};
 
 use super::contents::contents_table;

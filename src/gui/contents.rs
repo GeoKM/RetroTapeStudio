@@ -1,3 +1,4 @@
+//! Contents tab: lists TAP entries with format and log badges plus a hex viewer popup.
 use egui::{self, Color32, ScrollArea, Window};
 
 use crate::log::parse::LogLevel;

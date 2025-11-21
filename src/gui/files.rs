@@ -1,3 +1,4 @@
+//! Files tab: displays assembled VMS files and detailed header/hex info in a modal.
 use egui::{self, ScrollArea, Window};
 
 use crate::backup::extract::VmsFile;

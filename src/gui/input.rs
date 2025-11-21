@@ -1,5 +1,5 @@
+//! Input helpers: load TAP/LOG inputs, correlate data, and refresh shared state.
 use std::path::Path;
-
 use crate::backup::extract::{assemble_vms_files, build_directory_tree};
 use crate::log::parse::{correlate_log, parse_log};
 use crate::summary::compute_saveset_summary;

@@ -1,3 +1,4 @@
+//! Save-set summary computation: aggregates counts, histograms, efficiency, and log metadata for the UI.
 use std::collections::HashMap;
 
 use crate::backup::vms::{format_protection, RecordFormat};

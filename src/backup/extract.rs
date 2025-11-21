@@ -1,3 +1,4 @@
+//! Assembles parsed VMS BACKUP blocks into file structures and directory trees for display and extraction.
 use crate::backup::vms::{
     parse_directory_record, parse_fh2_record, parse_xh2_record, BackupBlock, VmsFileHeader,
 };

@@ -1,3 +1,4 @@
+//! Log tab: renders parsed log metadata and color-coded entries.
 use egui::{self, Color32, Grid, ScrollArea};
 
 use crate::log::parse::{LogData, LogLevel};
