@@ -1,5 +1,7 @@
 use std::convert::TryInto;
 
+use crate::{TapeError, TapeResult};
+
 /// Parsed view of a VMS BACKUP Phase-1 block header and payload.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct BackupBlock {
@@ -74,30 +76,34 @@ impl VmsFileHeader {
 /// - 4..8: little-endian sequence number.
 /// - 8..10: little-endian checksum field (exposed but not validated here).
 /// - 10..N: payload bytes recorded by BACKUP.
-pub fn read_backup_block(data: &[u8]) -> Result<BackupBlock, String> {
+pub fn read_backup_block(data: &[u8]) -> TapeResult<BackupBlock> {
     const HEADER_LEN: usize = 10;
 
     if data.len() < HEADER_LEN {
-        return Err("buffer too small for VMS BACKUP header".into());
+        return Err(TapeError::Parse("buffer too small for VMS BACKUP header".into()));
     }
 
     let block_size = u16::from_le_bytes([data[0], data[1]]);
     if block_size == 0 {
-        return Err("block size must be greater than zero".into());
+        return Err(TapeError::Parse("block size must be greater than zero".into()));
     }
 
     let block_size_usize = block_size as usize;
     if block_size_usize > data.len() {
-        return Err(format!(
+        return Err(TapeError::Parse(format!(
             "block size {} exceeds available data {}",
-            block_size, data.len()
-        ));
+            block_size,
+            data.len()
+        )));
     }
 
     let format_version = data[2];
     let phase = data[3];
     if phase != 1 {
-        return Err(format!("unsupported phase {}, expected Phase-1", phase));
+        return Err(TapeError::UnsupportedFormat(format!(
+            "unsupported phase {}, expected Phase-1",
+            phase
+        )));
     }
 
     let sequence_number = u32::from_le_bytes(data[4..8].try_into().unwrap());
@@ -147,17 +153,17 @@ pub fn parse_record_format(code: u8) -> RecordFormat {
 /// next: u16 rms rattr
 /// next: u16 rms rattnr
 /// next: u16 rms rattnl
-pub fn parse_fh2_record(data: &[u8]) -> Result<VmsFileHeader, String> {
+pub fn parse_fh2_record(data: &[u8]) -> TapeResult<VmsFileHeader> {
     if data.is_empty() || data[0] != FH2_CODE {
-        return Err("FH2 record code missing".into());
+        return Err(TapeError::Parse("FH2 record code missing".into()));
     }
     if data.len() < 1 + 1 + 2 + 1 + 2 + 2 + 8 + 8 + 4 + 4 + 4 + 2 + 2 + 2 {
-        return Err("FH2 record too short".into());
+        return Err(TapeError::Parse("FH2 record too short".into()));
     }
 
     let name_len = data[1] as usize;
     if data.len() < 2 + name_len + 2 + 1 + 2 + 2 + 8 + 8 + 4 + 4 + 4 + 2 + 2 + 2 {
-        return Err("FH2 record missing name bytes".into());
+        return Err(TapeError::Parse("FH2 record missing name bytes".into()));
     }
 
     let name_bytes = &data[2..2 + name_len];
@@ -228,12 +234,12 @@ fn split_name_type(name: &str) -> (String, String) {
 }
 
 /// Parse an XH2 extended header record.
-pub fn parse_xh2_record(data: &[u8]) -> Result<VmsExtendedHeader, String> {
+pub fn parse_xh2_record(data: &[u8]) -> TapeResult<VmsExtendedHeader> {
     if data.is_empty() || data[0] != XH2_CODE {
-        return Err("XH2 record code missing".into());
+        return Err(TapeError::Parse("XH2 record code missing".into()));
     }
     if data.len() < 1 + 2 + 8 + 4 + 2 + 4 + 4 {
-        return Err("XH2 record too short".into());
+        return Err(TapeError::Parse("XH2 record too short".into()));
     }
 
     let mut offset = 1;
@@ -318,6 +324,7 @@ mod tests {
         format_protection, parse_directory_record, parse_fh2_record, parse_record_format,
         parse_xh2_record, read_backup_block, RecordFormat,
     };
+    use crate::TapeError;
 
     #[test]
     fn parses_minimal_block() {
@@ -347,7 +354,10 @@ mod tests {
         raw[3] = 2;
 
         let err = read_backup_block(&raw).unwrap_err();
-        assert!(err.contains("Phase-1"));
+        match err {
+            TapeError::UnsupportedFormat(msg) => assert!(msg.contains("Phase-1")),
+            other => panic!("unexpected error {other:?}"),
+        }
     }
 
     #[test]

@@ -50,14 +50,14 @@ pub fn contents_table(ui: &mut egui::Ui, entries: &[TapEntry], app_state: &mut A
                     }
 
                     if ui.button("View").clicked() {
-                        app_state.selected_entry = Some(idx);
+                        app_state.tap_state.selected_entry = Some(idx);
                     }
                 });
                 ui.separator();
             }
         });
 
-    if let Some(idx) = app_state.selected_entry {
+    if let Some(idx) = app_state.tap_state.selected_entry {
         if let Some(entry) = entries.get(idx) {
             Window::new("Hex Viewer")
                 .collapsible(false)
@@ -69,11 +69,11 @@ pub fn contents_table(ui: &mut egui::Ui, entries: &[TapEntry], app_state: &mut A
                     };
                     ui.monospace(format_hex(&bytes));
                     if ui.button("Close").clicked() {
-                        app_state.selected_entry = None;
+                        app_state.tap_state.selected_entry = None;
                     }
                 });
         } else {
-            app_state.selected_entry = None;
+            app_state.tap_state.selected_entry = None;
         }
     }
 }

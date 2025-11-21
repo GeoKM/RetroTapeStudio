@@ -1,8 +1,8 @@
-use crate::log::parse::LogData;
-use crate::tap::reader::TapEntry;
 use crate::backup::extract::{VmsFile, VmsFileSystem};
 use crate::gui::extraction::ExtractionState;
+use crate::log::parse::LogData;
 use crate::summary::SaveSetSummary;
+use crate::tap::reader::TapEntry;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum MainTab {
@@ -15,9 +15,8 @@ pub enum MainTab {
 
 #[derive(Debug, Clone)]
 pub struct AppState {
-    pub log: Option<LogData>,
-    pub tap_entries: Vec<TapEntry>,
-    pub selected_entry: Option<usize>,
+    pub tap_state: TapState,
+    pub log_state: LogState,
     pub vms_files: Vec<VmsFile>,
     pub vms_fs: Option<VmsFileSystem>,
     pub selected_file: Option<usize>,
@@ -27,12 +26,23 @@ pub struct AppState {
     pub extraction: ExtractionState,
 }
 
+#[derive(Debug, Clone, Default)]
+pub struct TapState {
+    pub entries: Vec<TapEntry>,
+    pub selected_entry: Option<usize>,
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct LogState {
+    pub data: Option<LogData>,
+    pub correlated: bool,
+}
+
 impl Default for AppState {
     fn default() -> Self {
         Self {
-            log: None,
-            tap_entries: Vec::new(),
-            selected_entry: None,
+            tap_state: TapState::default(),
+            log_state: LogState::default(),
             vms_files: Vec::new(),
             vms_fs: None,
             selected_file: None,

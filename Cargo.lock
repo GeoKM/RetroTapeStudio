@@ -2263,6 +2263,7 @@ dependencies = [
  "eframe",
  "egui",
  "rfd",
+ "thiserror",
  "walkdir",
 ]
 

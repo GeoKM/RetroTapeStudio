@@ -211,6 +211,7 @@ mod tests {
     use super::{assemble_files, assemble_vms_files, build_directory_tree, ExtractedFile, VmsFile};
     use crate::backup::vms::{BackupBlock, VmsFileHeader};
     use crate::tap::reader::{TapDataKind, TapEntry};
+    use crate::tap::DetectedFormat;
 
     fn make_block(seq: u32, payload: &[u8]) -> BackupBlock {
         BackupBlock {
@@ -230,17 +231,20 @@ mod tests {
                 length: 12,
                 kind: TapDataKind::VmsBlock(make_block(1, b"hello ")),
                 log_level: None,
+                detected_format: DetectedFormat::VmsBackup,
             },
             TapEntry {
                 length: 12,
                 kind: TapDataKind::VmsBlock(make_block(2, b"world")),
                 log_level: None,
+                detected_format: DetectedFormat::VmsBackup,
             },
             // New file starts because sequence resets
             TapEntry {
                 length: 11,
                 kind: TapDataKind::VmsBlock(make_block(1, b"bye")),
                 log_level: None,
+                detected_format: DetectedFormat::VmsBackup,
             },
         ];
 
@@ -262,11 +266,13 @@ mod tests {
                 length: 5,
                 kind: TapDataKind::Raw(vec![1, 2, 3]),
                 log_level: None,
+                detected_format: DetectedFormat::Raw,
             },
             TapEntry {
                 length: 12,
                 kind: TapDataKind::VmsBlock(make_block(1, b"a")),
                 log_level: None,
+                detected_format: DetectedFormat::VmsBackup,
             },
         ];
 
@@ -302,21 +308,25 @@ mod tests {
                 length: 32,
                 kind: TapDataKind::VmsBlock(make_block(1, &fh2_payload("DIR1.FILE1"))),
                 log_level: None,
+                detected_format: DetectedFormat::VmsBackup,
             },
             TapEntry {
                 length: 12,
                 kind: TapDataKind::VmsBlock(make_block(2, b"data1")),
                 log_level: None,
+                detected_format: DetectedFormat::VmsBackup,
             },
             TapEntry {
                 length: 32,
                 kind: TapDataKind::VmsBlock(make_block(3, &fh2_payload("DIR1.FILE2"))),
                 log_level: None,
+                detected_format: DetectedFormat::VmsBackup,
             },
             TapEntry {
                 length: 12,
                 kind: TapDataKind::VmsBlock(make_block(4, b"data2")),
                 log_level: None,
+                detected_format: DetectedFormat::VmsBackup,
             },
         ];
 

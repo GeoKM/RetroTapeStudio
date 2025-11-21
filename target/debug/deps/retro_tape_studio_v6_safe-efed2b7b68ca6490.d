@@ -1,0 +1,26 @@
+/Users/keith/src/RetroTapeStudio/target/debug/deps/retro_tape_studio_v6_safe-efed2b7b68ca6490.d: src/lib.rs src/backup/mod.rs src/backup/vms.rs src/backup/extract.rs src/tap/mod.rs src/tap/reader.rs src/gui/mod.rs src/gui/contents.rs src/gui/extraction.rs src/gui/input.rs src/gui/logview.rs src/gui/files.rs src/gui/state.rs src/gui/summary.rs src/gui/app.rs src/log/mod.rs src/log/parse.rs src/utils/mod.rs src/utils/hex.rs src/summary/mod.rs
+
+/Users/keith/src/RetroTapeStudio/target/debug/deps/libretro_tape_studio_v6_safe-efed2b7b68ca6490.rlib: src/lib.rs src/backup/mod.rs src/backup/vms.rs src/backup/extract.rs src/tap/mod.rs src/tap/reader.rs src/gui/mod.rs src/gui/contents.rs src/gui/extraction.rs src/gui/input.rs src/gui/logview.rs src/gui/files.rs src/gui/state.rs src/gui/summary.rs src/gui/app.rs src/log/mod.rs src/log/parse.rs src/utils/mod.rs src/utils/hex.rs src/summary/mod.rs
+
+/Users/keith/src/RetroTapeStudio/target/debug/deps/libretro_tape_studio_v6_safe-efed2b7b68ca6490.rmeta: src/lib.rs src/backup/mod.rs src/backup/vms.rs src/backup/extract.rs src/tap/mod.rs src/tap/reader.rs src/gui/mod.rs src/gui/contents.rs src/gui/extraction.rs src/gui/input.rs src/gui/logview.rs src/gui/files.rs src/gui/state.rs src/gui/summary.rs src/gui/app.rs src/log/mod.rs src/log/parse.rs src/utils/mod.rs src/utils/hex.rs src/summary/mod.rs
+
+src/lib.rs:
+src/backup/mod.rs:
+src/backup/vms.rs:
+src/backup/extract.rs:
+src/tap/mod.rs:
+src/tap/reader.rs:
+src/gui/mod.rs:
+src/gui/contents.rs:
+src/gui/extraction.rs:
+src/gui/input.rs:
+src/gui/logview.rs:
+src/gui/files.rs:
+src/gui/state.rs:
+src/gui/summary.rs:
+src/gui/app.rs:
+src/log/mod.rs:
+src/log/parse.rs:
+src/utils/mod.rs:
+src/utils/hex.rs:
+src/summary/mod.rs:

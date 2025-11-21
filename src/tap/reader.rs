@@ -1,5 +1,7 @@
 use crate::backup::vms::{read_backup_block, BackupBlock};
 use crate::log::parse::LogLevel;
+use crate::tap::DetectedFormat;
+use crate::{TapeError, TapeResult};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TapDataKind {
@@ -12,6 +14,7 @@ pub struct TapEntry {
     pub length: usize,
     pub kind: TapDataKind,
     pub log_level: Option<LogLevel>,
+    pub detected_format: DetectedFormat,
 }
 
 /// Parse a TAP record from already isolated record bytes.
@@ -19,25 +22,29 @@ pub struct TapEntry {
 /// If the record is larger than 20 bytes, a best-effort VMS BACKUP Phase-1
 /// decode is attempted; on success, the parsed block is returned. Otherwise,
 /// the raw bytes are surfaced.
-pub fn read_tap_entry(record: &[u8]) -> Result<TapEntry, String> {
+pub fn read_tap_entry(record: &[u8]) -> TapeResult<TapEntry> {
     if record.is_empty() {
-        return Err("empty TAP record".into());
+        return Err(TapeError::Parse("empty TAP record".into()));
+    }
+    if record.len() > 1_048_576 {
+        return Err(TapeError::UnsupportedFormat("record too large".into()));
     }
 
     let length = record.len();
-    let kind = if length > 20 {
+    let (kind, detected_format) = if length > 20 {
         match read_backup_block(record) {
-            Ok(block) => TapDataKind::VmsBlock(block),
-            Err(_) => TapDataKind::Raw(record.to_vec()),
+            Ok(block) => (TapDataKind::VmsBlock(block), DetectedFormat::VmsBackup),
+            Err(err) => return Err(err),
         }
     } else {
-        TapDataKind::Raw(record.to_vec())
+        (TapDataKind::Raw(record.to_vec()), DetectedFormat::Raw)
     };
 
     Ok(TapEntry {
         length,
         kind,
         log_level: None,
+        detected_format,
     })
 }
 
@@ -45,12 +52,15 @@ pub fn read_tap_entry(record: &[u8]) -> Result<TapEntry, String> {
 mod tests {
     use super::read_tap_entry;
     use crate::tap::reader::TapDataKind;
+    use crate::tap::DetectedFormat;
+    use crate::TapeError;
 
     #[test]
     fn keeps_small_records_raw() {
         let record = vec![1, 2, 3];
         let entry = read_tap_entry(&record).expect("should parse");
         assert_eq!(entry.length, 3);
+        assert_eq!(entry.detected_format, DetectedFormat::Raw);
         match entry.kind {
             TapDataKind::Raw(data) => assert_eq!(data, record),
             _ => panic!("expected raw data"),
@@ -74,6 +84,16 @@ mod tests {
                 assert_eq!(block.payload[0], 0xAA);
             }
             _ => panic!("expected VMS block"),
+        }
+        assert_eq!(entry.detected_format, DetectedFormat::VmsBackup);
+    }
+
+    #[test]
+    fn rejects_empty_record() {
+        let err = read_tap_entry(&[]).unwrap_err();
+        match err {
+            TapeError::Parse(_) => {}
+            _ => panic!("expected parse error"),
         }
     }
 }

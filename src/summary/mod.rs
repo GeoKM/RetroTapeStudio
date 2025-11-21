@@ -71,7 +71,8 @@ pub fn compute_saveset_summary(state: &AppState) -> SaveSetSummary {
     };
 
     let (log_warnings, log_errors, tracks, density, blocks_read) = state
-        .log
+        .log_state
+        .data
         .as_ref()
         .map(log_stats)
         .unwrap_or((0, 0, None, None, None));

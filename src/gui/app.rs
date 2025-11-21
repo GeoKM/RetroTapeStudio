@@ -20,16 +20,16 @@ pub fn render_app(ctx: &egui::Context, state: &mut AppState) {
         ui.separator();
         match state.current_tab {
             MainTab::Contents => {
-                let entries = state.tap_entries.clone();
+                let entries = state.tap_state.entries.clone();
                 contents_table(ui, &entries, state)
             }
             MainTab::Extraction => {
-                let entries = state.tap_entries.clone();
+                let entries = state.tap_state.entries.clone();
                 extraction_tab(ui, &entries, &mut state.extraction)
             }
             MainTab::Files => files_tab(ui, state),
             MainTab::Summary => summary_tab(ui, state),
-            MainTab::Log => draw_log(ui, &state.log),
+            MainTab::Log => draw_log(ui, &state.log_state.data),
         }
     });
 }

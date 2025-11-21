@@ -3,6 +3,7 @@ use std::fs;
 use std::path::Path;
 
 use crate::tap::reader::TapEntry;
+use crate::{TapeError, TapeResult};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum LogLevel {
@@ -25,9 +26,9 @@ pub struct LogData {
 
 /// Parse a TAP companion `.LOG` file, classifying lines by severity and
 /// extracting drive metadata hints when present.
-pub fn parse_log(path: &Path) -> Result<LogData, String> {
+pub fn parse_log(path: &Path) -> TapeResult<LogData> {
     let content = fs::read_to_string(path)
-        .map_err(|err| format!("failed to read log {}: {}", path.display(), err))?;
+        .map_err(|err| TapeError::Io(err))?;
 
     let mut entries = Vec::new();
     let mut metadata = HashMap::new();
@@ -121,6 +122,7 @@ mod tests {
     use std::io;
     use std::path::PathBuf;
     use crate::tap::reader::{TapDataKind, TapEntry};
+    use crate::tap::DetectedFormat;
 
     fn temp_log_path(name: &str) -> PathBuf {
         let mut path = std::env::temp_dir();
@@ -184,8 +186,8 @@ mod tests {
     #[test]
     fn correlates_record_numbers() {
         let mut entries = vec![
-            TapEntry { length: 1, kind: TapDataKind::Raw(vec![]), log_level: None },
-            TapEntry { length: 1, kind: TapDataKind::Raw(vec![]), log_level: None },
+            TapEntry { length: 1, kind: TapDataKind::Raw(vec![]), log_level: None, detected_format: DetectedFormat::Raw },
+            TapEntry { length: 1, kind: TapDataKind::Raw(vec![]), log_level: None, detected_format: DetectedFormat::Raw },
         ];
 
         let log = LogData {
