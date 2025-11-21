@@ -31,14 +31,24 @@ pub fn read_tap_entry(record: &[u8]) -> TapeResult<TapEntry> {
     }
 
     let length = record.len();
-    let (kind, detected_format) = if length > 20 {
+    let (kind, mut detected_format) = if length > 20 {
         match read_backup_block(record) {
             Ok(block) => (TapDataKind::VmsBlock(block), DetectedFormat::VmsBackup),
-            Err(err) => return Err(err),
+            Err(_) => (TapDataKind::Raw(record.to_vec()), DetectedFormat::Raw),
         }
     } else {
         (TapDataKind::Raw(record.to_vec()), DetectedFormat::Raw)
     };
+
+    if detected_format == DetectedFormat::Raw {
+        if detect_rsx11m(record) {
+            detected_format = DetectedFormat::Rsx11m;
+        } else if detect_rt11(record) {
+            detected_format = DetectedFormat::Rt11;
+        } else if detect_rsts(record) {
+            detected_format = DetectedFormat::RstsE;
+        }
+    }
 
     Ok(TapEntry {
         length,
@@ -48,12 +58,46 @@ pub fn read_tap_entry(record: &[u8]) -> TapeResult<TapEntry> {
     })
 }
 
+fn detect_rsx11m(block: &[u8]) -> bool {
+    if block.len() < 512 || block.len() % 512 != 0 {
+        return false;
+    }
+    let has_count = block.get(0..4) == Some(&[0x01, 0x00, 0x00, 0x00]);
+    let has_tag = block.windows(3).any(|w| w == b"RSX" || w == b"UFD");
+    has_count && has_tag
+}
+
+fn detect_rt11(block: &[u8]) -> bool {
+    if block.len() < 512 || block.len() % 512 != 0 {
+        return false;
+    }
+    let dir_words = u16::from_le_bytes([block[0], block[1]]);
+    let plausible_dir = dir_words > 0 && dir_words < 0x0400;
+    let has_tag = block.windows(4).any(|w| w == b"RT11");
+    plausible_dir && has_tag
+}
+
+fn detect_rsts(block: &[u8]) -> bool {
+    if block.len() < 512 || block.len() % 512 != 0 {
+        return false;
+    }
+    if block.len() < 64 {
+        return false;
+    }
+    let first = &block[0..32];
+    let repeated = &block[32..64];
+    let bitmap_like = first == repeated;
+    let has_tag = block.windows(4).any(|w| w == b"RSTS");
+    bitmap_like && has_tag
+}
+
 #[cfg(test)]
 mod tests {
-    use super::read_tap_entry;
+    use super::{detect_rsts, detect_rsx11m, detect_rt11, read_tap_entry};
     use crate::tap::reader::TapDataKind;
     use crate::tap::DetectedFormat;
     use crate::TapeError;
+    use std::fs;
 
     #[test]
     fn keeps_small_records_raw() {
@@ -95,5 +139,23 @@ mod tests {
             TapeError::Parse(_) => {}
             _ => panic!("expected parse error"),
         }
+    }
+
+    #[test]
+    fn test_detect_rt11() {
+        let data = fs::read("tests/data/rt11.tap").expect("missing rt11 fixture");
+        assert!(detect_rt11(&data));
+    }
+
+    #[test]
+    fn test_detect_rsx11m() {
+        let data = fs::read("tests/data/rsx.tap").expect("missing rsx fixture");
+        assert!(detect_rsx11m(&data));
+    }
+
+    #[test]
+    fn test_detect_rsts() {
+        let data = fs::read("tests/data/rsts.tap").expect("missing rsts fixture");
+        assert!(detect_rsts(&data));
     }
 }

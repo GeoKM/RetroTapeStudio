@@ -4,6 +4,7 @@ use egui::{self, CentralPanel};
 use super::contents::contents_table;
 use super::extraction::extraction_tab;
 use super::files::files_tab;
+use super::input::input_tab;
 use super::logview::draw_log;
 use super::state::{AppState, MainTab};
 use super::summary::summary_tab;
@@ -12,6 +13,7 @@ use super::summary::summary_tab;
 pub fn render_app(ctx: &egui::Context, state: &mut AppState) {
     CentralPanel::default().show(ctx, |ui| {
         ui.horizontal(|ui| {
+            tab_button(ui, "Input", MainTab::Input, state);
             tab_button(ui, "Contents", MainTab::Contents, state);
             tab_button(ui, "Extraction", MainTab::Extraction, state);
             tab_button(ui, "Files", MainTab::Files, state);
@@ -20,6 +22,7 @@ pub fn render_app(ctx: &egui::Context, state: &mut AppState) {
         });
         ui.separator();
         match state.current_tab {
+            MainTab::Input => input_tab(ui, state),
             MainTab::Contents => {
                 let entries = state.tap_state.entries.clone();
                 contents_table(ui, &entries, state)

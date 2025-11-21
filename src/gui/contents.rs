@@ -13,6 +13,7 @@ pub fn contents_table(ui: &mut egui::Ui, entries: &[TapEntry], app_state: &mut A
     ui.horizontal(|ui| {
         ui.label("Index");
         ui.label("Length");
+        ui.label("Format");
         ui.label("Kind");
         ui.label("Phase");
         ui.label("Sequence");
@@ -34,6 +35,7 @@ pub fn contents_table(ui: &mut egui::Ui, entries: &[TapEntry], app_state: &mut A
                     }
                     ui.label(idx.to_string());
                     ui.label(entry.length.to_string());
+                    ui.colored_label(format_color(entry.detected_format), format!("{:?}", entry.detected_format));
 
                     match &entry.kind {
                         TapDataKind::Raw(data) => {
@@ -84,5 +86,15 @@ fn badge_color(level: Option<&LogLevel>) -> Option<Color32> {
         Some(LogLevel::Error) => Some(Color32::RED),
         Some(LogLevel::Warning) => Some(Color32::YELLOW),
         _ => None,
+    }
+}
+
+fn format_color(format: crate::tap::DetectedFormat) -> Color32 {
+    match format {
+        crate::tap::DetectedFormat::VmsBackup => Color32::GREEN,
+        crate::tap::DetectedFormat::Rsx11m => Color32::YELLOW,
+        crate::tap::DetectedFormat::Rt11 => Color32::from_rgb(0, 200, 200),
+        crate::tap::DetectedFormat::RstsE => Color32::BLUE,
+        crate::tap::DetectedFormat::Raw => Color32::GRAY,
     }
 }

@@ -3,9 +3,11 @@ pub mod reader;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum DetectedFormat {
-    VmsBackup,
     Raw,
-    Unknown,
+    VmsBackup,
+    Rsx11m,
+    Rt11,
+    RstsE,
 }
 
 #[cfg(test)]

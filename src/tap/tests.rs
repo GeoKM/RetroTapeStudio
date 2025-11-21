@@ -21,6 +21,6 @@ fn silent_eof_reports_error() {
     data[0..2].copy_from_slice(&64u16.to_le_bytes());
     data[2] = 1;
     data[3] = 1;
-    let err = read_tap_entry(&data).unwrap_err();
-    assert!(matches!(err, TapeError::Parse(_)));
+    let entry = read_tap_entry(&data).expect("should fall back to raw");
+    assert!(matches!(entry.kind, crate::tap::reader::TapDataKind::Raw(_)));
 }

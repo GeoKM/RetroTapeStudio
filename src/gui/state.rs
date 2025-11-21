@@ -7,6 +7,7 @@ use crate::tap::reader::TapEntry;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum MainTab {
+    Input,
     Contents,
     Extraction,
     Files,
