@@ -35,7 +35,10 @@ pub fn contents_table(ui: &mut egui::Ui, entries: &[TapEntry], app_state: &mut A
                     }
                     ui.label(idx.to_string());
                     ui.label(entry.length.to_string());
-                    ui.colored_label(format_color(entry.detected_format), format!("{:?}", entry.detected_format));
+                    ui.colored_label(
+                        format_color(entry.detected_format),
+                        format!("{:?}", entry.detected_format),
+                    );
 
                     match &entry.kind {
                         TapDataKind::Raw(data) => {

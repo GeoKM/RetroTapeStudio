@@ -1,0 +1,45 @@
+
+TA0114.TAP created by STP2TAP 0.02 on Wed Nov 05 14:17:12 2025
+
+Options are as follows:
+  No rewind at beginning and end.
+  Copy all blocks.
+  Copy until EOD.
+
+---------------------------------------------
+
+BB-KR74A-BE M48001TM
+VAX/MICROVMS V4.4/4.5 MUP 16MT9
+(C) COPYRIGHT 1987
+Digital Equipment Corporation
+BAKED ON 4/11/25 55C BY AF
+SILICON LUBRICANT
+
+---------------------------------------------
+
+Reading...
+
+3 x 80 bytes
+Tapemark hit at block 8071936
+10 x 8192 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+2 x 8192 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+2 x 8192 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+Tapemark hit at block 8071936
+
+End of data hit at 3542722
+
+Finished reading at Wed Nov 05 14:24:11 2025
+

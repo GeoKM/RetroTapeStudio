@@ -14,13 +14,15 @@ pub fn draw_log(ui: &mut egui::Ui, log: &Option<LogData>) {
             if data.metadata.is_empty() {
                 ui.label("No metadata found");
             } else {
-                Grid::new("log_metadata_grid").num_columns(2).show(ui, |ui| {
-                    for (key, value) in &data.metadata {
-                        ui.label(key);
-                        ui.label(value);
-                        ui.end_row();
-                    }
-                });
+                Grid::new("log_metadata_grid")
+                    .num_columns(2)
+                    .show(ui, |ui| {
+                        for (key, value) in &data.metadata {
+                            ui.label(key);
+                            ui.label(value);
+                            ui.end_row();
+                        }
+                    });
             }
 
             ui.separator();

@@ -6,7 +6,7 @@ use retro_tape_studio_v6_safe::tap::DetectedFormat;
 use std::fs;
 use std::path::PathBuf;
 mod common;
-use common::write_output;
+use common::{load_tap_fixture, read_tap_with_chunks, write_output};
 
 #[test]
 fn loading_tap_and_log_resets_selection() {
@@ -44,7 +44,31 @@ fn loading_log_correlates() {
         Some(LogLevel::Warning) | Some(LogLevel::Error)
     ));
     let _ = fs::remove_file(path);
-    write_output("correlation", "state_correlation.txt", &format!("{:?}", state.tap_state.entries[0].log_level));
+    write_output(
+        "correlation",
+        "state_correlation.txt",
+        &format!("{:?}", state.tap_state.entries[0].log_level),
+    );
+}
+
+#[test]
+fn loading_non_vms_taps_skips_block_tree() {
+    for tap in ["TA0113.TAP", "TA0013.TAP"] {
+        let mut state = AppState::default();
+        let data = load_tap_fixture(tap);
+        let entries = read_tap_with_chunks(&data, 512).expect("should parse TAP without panic");
+
+        assert!(
+            entries
+                .iter()
+                .all(|entry| entry.detected_format != DetectedFormat::VmsBackup),
+            "expected {tap} to be detected as non-VMS"
+        );
+
+        set_tap_entries(entries, &mut state);
+        assert!(state.vms_files.is_empty());
+        assert!(state.vms_fs.is_none());
+    }
 }
 
 fn temp_log(content: &str) -> PathBuf {

@@ -22,5 +22,8 @@ fn silent_eof_reports_error() {
     data[2] = 1;
     data[3] = 1;
     let entry = read_tap_entry(&data).expect("should fall back to raw");
-    assert!(matches!(entry.kind, crate::tap::reader::TapDataKind::Raw(_)));
+    assert!(matches!(
+        entry.kind,
+        crate::tap::reader::TapDataKind::Raw(_)
+    ));
 }

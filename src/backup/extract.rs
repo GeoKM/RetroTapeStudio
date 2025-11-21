@@ -141,7 +141,9 @@ pub fn assemble_vms_files(entries: &[TapEntry]) -> Vec<VmsFile> {
         }
 
         if block.payload.first().copied() == Some(0x0C) {
-            if let (Some(mut header), Ok(xh2)) = (current_header.take(), parse_xh2_record(&block.payload)) {
+            if let (Some(mut header), Ok(xh2)) =
+                (current_header.take(), parse_xh2_record(&block.payload))
+            {
                 header.extended = Some(xh2);
                 current_header = Some(header);
             }
@@ -193,15 +195,19 @@ fn insert_file(root: &mut DirectoryNode, path: &str, name: String) {
         }
         current_path.push_str(part);
         current_path.push('/');
-        let idx = node.children.iter().position(|c| c.name == *part).unwrap_or_else(|| {
-            node.children.push(DirectoryNode {
-                name: part.to_string(),
-                path: current_path.clone(),
-                children: Vec::new(),
-                files: Vec::new(),
+        let idx = node
+            .children
+            .iter()
+            .position(|c| c.name == *part)
+            .unwrap_or_else(|| {
+                node.children.push(DirectoryNode {
+                    name: part.to_string(),
+                    path: current_path.clone(),
+                    children: Vec::new(),
+                    files: Vec::new(),
+                });
+                node.children.len() - 1
             });
-            node.children.len() - 1
-        });
         node = node.children.get_mut(idx).unwrap();
     }
     node.files.push(name);

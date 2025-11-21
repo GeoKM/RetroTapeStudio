@@ -28,8 +28,7 @@ pub struct LogData {
 /// Parse a TAP companion `.LOG` file, classifying lines by severity and
 /// extracting drive metadata hints when present.
 pub fn parse_log(path: &Path) -> TapeResult<LogData> {
-    let content = fs::read_to_string(path)
-        .map_err(|err| TapeError::Io(err))?;
+    let content = fs::read_to_string(path).map_err(|err| TapeError::Io(err))?;
 
     let mut entries = Vec::new();
     let mut metadata = HashMap::new();
@@ -118,12 +117,12 @@ fn parse_drive_metadata(line: &str, metadata: &mut HashMap<String, String>) {
 #[cfg(test)]
 mod tests {
     use super::{correlate_log, parse_drive_metadata, parse_log, LogData, LogEntry, LogLevel};
+    use crate::tap::reader::{TapDataKind, TapEntry};
+    use crate::tap::DetectedFormat;
     use std::collections::HashMap;
     use std::fs;
     use std::io;
     use std::path::PathBuf;
-    use crate::tap::reader::{TapDataKind, TapEntry};
-    use crate::tap::DetectedFormat;
 
     fn temp_log_path(name: &str) -> PathBuf {
         let mut path = std::env::temp_dir();
@@ -132,7 +131,10 @@ mod tests {
             .duration_since(std::time::SystemTime::UNIX_EPOCH)
             .unwrap()
             .subsec_nanos();
-        path.push(format!("retro_tape_log_test_{}_{}_{}.log", name, pid, nanos));
+        path.push(format!(
+            "retro_tape_log_test_{}_{}_{}.log",
+            name, pid, nanos
+        ));
         path
     }
 
@@ -187,14 +189,30 @@ mod tests {
     #[test]
     fn correlates_record_numbers() {
         let mut entries = vec![
-            TapEntry { length: 1, kind: TapDataKind::Raw(vec![]), log_level: None, detected_format: DetectedFormat::Raw },
-            TapEntry { length: 1, kind: TapDataKind::Raw(vec![]), log_level: None, detected_format: DetectedFormat::Raw },
+            TapEntry {
+                length: 1,
+                kind: TapDataKind::Raw(vec![]),
+                log_level: None,
+                detected_format: DetectedFormat::Raw,
+            },
+            TapEntry {
+                length: 1,
+                kind: TapDataKind::Raw(vec![]),
+                log_level: None,
+                detected_format: DetectedFormat::Raw,
+            },
         ];
 
         let log = LogData {
             entries: vec![
-                LogEntry { line: "Record 1 processed".into(), level: LogLevel::Info },
-                LogEntry { line: "Record 2 ERROR".into(), level: LogLevel::Error },
+                LogEntry {
+                    line: "Record 1 processed".into(),
+                    level: LogLevel::Info,
+                },
+                LogEntry {
+                    line: "Record 2 ERROR".into(),
+                    level: LogLevel::Error,
+                },
             ],
             metadata: HashMap::new(),
         };

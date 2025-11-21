@@ -1,8 +1,8 @@
 //! Extraction tab: lets users choose an output folder and write assembled file payloads to disk.
-use std::fs;
-use std::path::PathBuf;
 use egui::{self, ScrollArea};
 use rfd::FileDialog;
+use std::fs;
+use std::path::PathBuf;
 
 use crate::backup::extract::{assemble_files, ExtractedFile};
 use crate::tap::reader::TapEntry;

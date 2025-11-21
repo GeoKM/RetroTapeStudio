@@ -1,0 +1,37 @@
+
+TA0117.TAP created by STP2TAP 0.02 on Wed Nov 05 10:58:29 2025
+
+Options are as follows:
+  No rewind at beginning and end.
+  Copy all blocks.
+  Copy until EOD.
+
+---------------------------------------------
+BB-FY83D-BE M52001B3
+VMS 5.0 BIN 16MT9
+(C) COPYRIGHT 1988
+Digital Equipment Corporation
+Baked @ 55c for 10 hours on 4/11/2025
+DEC original 6250bpi tape recorded at 1600BPI
+Read by Adrian Franulovich
+Australian Computer Museum
+Silicon Lubricant used
+
+---------------------------------------------
+
+Reading...
+
+3 x 80 bytes
+Tapemark hit at block 8071936
+6 x 8192 bytes
+1 x 7301 bytes
+24 x 8192 bytes
+Tapemark hit at block 8071936
+2 x 80 bytes
+Tapemark hit at block 8071936
+Tapemark hit at block 8071936
+
+End of data hit at 3542722
+
+Finished reading at Wed Nov 05 11:02:12 2025
+

@@ -1,4 +1,6 @@
-use retro_tape_studio_v6_safe::backup::extract::{assemble_vms_files, VmsFileSystem, build_directory_tree};
+use retro_tape_studio_v6_safe::backup::extract::{
+    assemble_vms_files, build_directory_tree, VmsFileSystem,
+};
 use retro_tape_studio_v6_safe::backup::vms::BackupBlock;
 use retro_tape_studio_v6_safe::tap::reader::{TapDataKind, TapEntry};
 use retro_tape_studio_v6_safe::tap::DetectedFormat;

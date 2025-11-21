@@ -79,14 +79,33 @@ impl VmsFileHeader {
 /// - 10..N: payload bytes recorded by BACKUP.
 pub fn read_backup_block(data: &[u8]) -> TapeResult<BackupBlock> {
     const HEADER_LEN: usize = 10;
+    // Minimum sanity bound: large enough that all header slices are in-bounds.
+    const MIN_VMS_BLOCK_HEADER: usize = 64;
+
+    if data.len() < MIN_VMS_BLOCK_HEADER {
+        return Err(TapeError::Parse(format!(
+            "VMS BACKUP block too short ({} bytes)",
+            data.len()
+        )));
+    }
 
     if data.len() < HEADER_LEN {
-        return Err(TapeError::Parse("buffer too small for VMS BACKUP header".into()));
+        return Err(TapeError::Parse(
+            "buffer too small for VMS BACKUP header".into(),
+        ));
     }
 
     let block_size = u16::from_le_bytes([data[0], data[1]]);
     if block_size == 0 {
-        return Err(TapeError::Parse("block size must be greater than zero".into()));
+        return Err(TapeError::Parse(
+            "block size must be greater than zero".into(),
+        ));
+    }
+
+    if (block_size as usize) < MIN_VMS_BLOCK_HEADER {
+        return Err(TapeError::Parse(
+            "block size smaller than VMS BACKUP header".into(),
+        ));
     }
 
     let block_size_usize = block_size as usize;
@@ -244,17 +263,21 @@ pub fn parse_xh2_record(data: &[u8]) -> TapeResult<VmsExtendedHeader> {
     }
 
     let mut offset = 1;
-    let backup_flags = Some(u16::from_le_bytes(data[offset..offset + 2].try_into().unwrap()));
+    let backup_flags = Some(u16::from_le_bytes(
+        data[offset..offset + 2].try_into().unwrap(),
+    ));
     offset += 2;
-    let high_precision_timestamp =
-        Some(u64::from_le_bytes(data[offset..offset + 8].try_into().unwrap()));
+    let high_precision_timestamp = Some(u64::from_le_bytes(
+        data[offset..offset + 8].try_into().unwrap(),
+    ));
     offset += 8;
     let acp_attributes = Some(u32::from_le_bytes(
         data[offset..offset + 4].try_into().unwrap(),
     ));
     offset += 4;
-    let journaling_flags =
-        Some(u16::from_le_bytes(data[offset..offset + 2].try_into().unwrap()));
+    let journaling_flags = Some(u16::from_le_bytes(
+        data[offset..offset + 2].try_into().unwrap(),
+    ));
     offset += 2;
     let file_id = Some(u32::from_le_bytes(
         data[offset..offset + 4].try_into().unwrap(),
@@ -329,8 +352,9 @@ mod tests {
 
     #[test]
     fn parses_minimal_block() {
-        let mut raw = vec![0u8; 12];
-        raw[0..2].copy_from_slice(&12u16.to_le_bytes());
+        let size = 70u16;
+        let mut raw = vec![0u8; size as usize];
+        raw[0..2].copy_from_slice(&size.to_le_bytes());
         raw[2] = 2; // format version
         raw[3] = 1; // phase
         raw[4..8].copy_from_slice(&5u32.to_le_bytes());
@@ -340,18 +364,31 @@ mod tests {
 
         let block = read_backup_block(&raw).expect("should parse");
 
-        assert_eq!(block.block_size, 12);
+        assert_eq!(block.block_size, size);
         assert_eq!(block.format_version, 2);
         assert_eq!(block.phase, 1);
         assert_eq!(block.sequence_number, 5);
         assert_eq!(block.checksum, 0xABCD);
-        assert_eq!(block.payload, vec![0x11, 0x22]);
+        assert_eq!(block.payload.len(), (size as usize) - 10);
+        assert_eq!(block.payload[0], 0x11);
+        assert_eq!(block.payload[1], 0x22);
+    }
+
+    #[test]
+    fn rejects_too_short_block() {
+        let raw = vec![0u8; 4];
+        let err = read_backup_block(&raw).unwrap_err();
+        match err {
+            TapeError::Parse(msg) => assert!(msg.contains("too short")),
+            other => panic!("unexpected error {other:?}"),
+        }
     }
 
     #[test]
     fn rejects_non_phase_one() {
-        let mut raw = vec![0u8; 10];
-        raw[0..2].copy_from_slice(&10u16.to_le_bytes());
+        let size = 80u16;
+        let mut raw = vec![0u8; size as usize];
+        raw[0..2].copy_from_slice(&size.to_le_bytes());
         raw[3] = 2;
 
         let err = read_backup_block(&raw).unwrap_err();
@@ -429,7 +466,9 @@ mod tests {
     #[test]
     fn formats_protection() {
         let text = format_protection(0xFFFF);
-        assert!(text.contains("R") && text.contains("W") && text.contains("E") && text.contains("D"));
+        assert!(
+            text.contains("R") && text.contains("W") && text.contains("E") && text.contains("D")
+        );
         let parts: Vec<&str> = text.split(',').collect();
         assert_eq!(parts.len(), 4);
     }

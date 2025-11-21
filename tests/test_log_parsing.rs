@@ -1,8 +1,8 @@
 use std::fs;
 use std::path::PathBuf;
 
-use retro_tape_studio_v6_safe::log::parse::{parse_log, LogLevel};
 use common::write_output;
+use retro_tape_studio_v6_safe::log::parse::{parse_log, LogLevel};
 mod common;
 
 #[test]

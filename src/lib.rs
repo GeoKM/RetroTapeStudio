@@ -1,9 +1,9 @@
 pub mod backup;
-pub mod tap;
 pub mod gui;
 pub mod log;
-pub mod utils;
 pub mod summary;
+pub mod tap;
+pub mod utils;
 
 #[derive(Debug, thiserror::Error)]
 pub enum TapeError {

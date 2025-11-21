@@ -49,7 +49,11 @@ pub fn set_tap_entries(entries: Vec<TapEntry>, state: &mut AppState) {
     state.selected_file = None;
     // Build VMS file structures for Files tab.
     state.vms_files = assemble_vms_files(&state.tap_state.entries);
-    state.vms_fs = Some(build_directory_tree(&state.vms_files));
+    state.vms_fs = if state.vms_files.is_empty() {
+        None
+    } else {
+        Some(build_directory_tree(&state.vms_files))
+    };
     if let Some(log) = &state.log_state.data {
         correlate_log(&mut state.tap_state.entries, log);
         state.log_state.correlated = true;

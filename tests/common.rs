@@ -21,8 +21,13 @@ pub fn load_log_fixture(name: &str) -> String {
 
 /// Chunk a TAP file into entries using 512-byte blocks.
 pub fn read_tap_file_with_chunks(bytes: &[u8]) -> TapeResult<Vec<TapEntry>> {
+    read_tap_with_chunks(bytes, 512)
+}
+
+/// Chunk a TAP file into entries using a configurable block size.
+pub fn read_tap_with_chunks(bytes: &[u8], chunk_size: usize) -> TapeResult<Vec<TapEntry>> {
     let mut entries = Vec::new();
-    for chunk in bytes.chunks(512) {
+    for chunk in bytes.chunks(chunk_size) {
         if chunk.is_empty() {
             continue;
         }

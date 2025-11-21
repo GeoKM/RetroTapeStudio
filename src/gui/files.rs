@@ -40,12 +40,21 @@ pub fn files_tab(ui: &mut egui::Ui, state: &mut AppState) {
                 .show(ui.ctx(), |ui| {
                     ui.heading(&file.name);
                     ui.label(format!("Path: {}", file.path));
-                    ui.label(format!("Record format: {}", record_format_text(&file.headers.record_format)));
-                    ui.label(format!("Protection: {}", format_protection(file.headers.protection_mask)));
+                    ui.label(format!(
+                        "Record format: {}",
+                        record_format_text(&file.headers.record_format)
+                    ));
+                    ui.label(format!(
+                        "Protection: {}",
+                        format_protection(file.headers.protection_mask)
+                    ));
                     ui.label(format!("Owner UIC: {:X}", file.headers.owner_uic));
                     if let Some(ext) = &file.headers.extended {
                         ui.label(format!("Backup flags: {:?}", ext.backup_flags));
-                        ui.label(format!("High precision time: {:?}", ext.high_precision_timestamp));
+                        ui.label(format!(
+                            "High precision time: {:?}",
+                            ext.high_precision_timestamp
+                        ));
                         ui.label(format!("ACP attrs: {:?}", ext.acp_attributes));
                         ui.label(format!("Journaling: {:?}", ext.journaling_flags));
                         ui.label(format!("File ID: {:?}", ext.file_id));
@@ -59,11 +68,8 @@ pub fn files_tab(ui: &mut egui::Ui, state: &mut AppState) {
                     ));
                     ui.separator();
                     ui.label("Blocks hex dump");
-                    let concatenated: Vec<u8> = file
-                        .blocks
-                        .iter()
-                        .flat_map(|b| b.payload.clone())
-                        .collect();
+                    let concatenated: Vec<u8> =
+                        file.blocks.iter().flat_map(|b| b.payload.clone()).collect();
                     ui.monospace(format_hex(&concatenated));
                     if ui.button("Close").clicked() {
                         state.selected_file = None;

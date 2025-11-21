@@ -19,9 +19,8 @@ pub struct TapEntry {
 
 /// Parse a TAP record from already isolated record bytes.
 ///
-/// If the record is larger than 20 bytes, a best-effort VMS BACKUP Phase-1
-/// decode is attempted; on success, the parsed block is returned. Otherwise,
-/// the raw bytes are surfaced.
+/// Format detection runs heuristics for RSX/RT-11/RSTS/E first, then only attempts
+/// VMS BACKUP decoding when the header layout matches Phase-1 expectations.
 pub fn read_tap_entry(record: &[u8]) -> TapeResult<TapEntry> {
     if record.is_empty() {
         return Err(TapeError::Parse("empty TAP record".into()));
@@ -31,22 +30,23 @@ pub fn read_tap_entry(record: &[u8]) -> TapeResult<TapEntry> {
     }
 
     let length = record.len();
-    let (kind, mut detected_format) = if length > 20 {
-        match read_backup_block(record) {
-            Ok(block) => (TapDataKind::VmsBlock(block), DetectedFormat::VmsBackup),
-            Err(_) => (TapDataKind::Raw(record.to_vec()), DetectedFormat::Raw),
-        }
-    } else {
-        (TapDataKind::Raw(record.to_vec()), DetectedFormat::Raw)
-    };
+    let mut detected_format = DetectedFormat::Raw;
 
-    if detected_format == DetectedFormat::Raw {
-        if detect_rsx11m(record) {
-            detected_format = DetectedFormat::Rsx11m;
-        } else if detect_rt11(record) {
-            detected_format = DetectedFormat::Rt11;
-        } else if detect_rsts(record) {
-            detected_format = DetectedFormat::RstsE;
+    if detect_rsx11m(record) {
+        detected_format = DetectedFormat::Rsx11m;
+    } else if detect_rt11(record) {
+        detected_format = DetectedFormat::Rt11;
+    } else if detect_rsts(record) {
+        detected_format = DetectedFormat::RstsE;
+    } else if looks_like_vms_backup(record) {
+        detected_format = DetectedFormat::VmsBackup;
+    }
+
+    let mut kind = TapDataKind::Raw(record.to_vec());
+    if detected_format == DetectedFormat::VmsBackup {
+        match read_backup_block(record) {
+            Ok(block) => kind = TapDataKind::VmsBlock(block),
+            Err(_) => detected_format = DetectedFormat::Raw,
         }
     }
 
@@ -91,6 +91,26 @@ fn detect_rsts(block: &[u8]) -> bool {
     bitmap_like && has_tag
 }
 
+fn looks_like_vms_backup(block: &[u8]) -> bool {
+    const MIN_VMS_BLOCK_HEADER: usize = 64;
+
+    if block.len() < MIN_VMS_BLOCK_HEADER {
+        return false;
+    }
+
+    let block_size = u16::from_le_bytes([block[0], block[1]]) as usize;
+    if block_size < MIN_VMS_BLOCK_HEADER || block_size > block.len() {
+        return false;
+    }
+
+    if block_size % 2 != 0 {
+        return false;
+    }
+
+    let format_version = block[2];
+    (format_version == 2) && block[3] == 1
+}
+
 #[cfg(test)]
 mod tests {
     use super::{detect_rsts, detect_rsx11m, detect_rt11, read_tap_entry};
@@ -113,8 +133,8 @@ mod tests {
 
     #[test]
     fn detects_vms_block() {
-        let mut raw = vec![0u8; 32];
-        raw[0..2].copy_from_slice(&32u16.to_le_bytes());
+        let mut raw = vec![0u8; 80];
+        raw[0..2].copy_from_slice(&80u16.to_le_bytes());
         raw[2] = 2;
         raw[3] = 1;
         raw[4..8].copy_from_slice(&9u32.to_le_bytes());
@@ -124,7 +144,7 @@ mod tests {
         let entry = read_tap_entry(&raw).expect("should parse");
         match entry.kind {
             TapDataKind::VmsBlock(block) => {
-                assert_eq!(block.block_size as usize, 32);
+                assert_eq!(block.block_size as usize, 80);
                 assert_eq!(block.payload[0], 0xAA);
             }
             _ => panic!("expected VMS block"),

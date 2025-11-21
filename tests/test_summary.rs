@@ -34,7 +34,10 @@ fn computes_counts_and_histograms() {
     });
 
     let summary = compute_saveset_summary(&state);
-    assert_eq!(summary.total_files, assemble_files(&state.tap_state.entries).len());
+    assert_eq!(
+        summary.total_files,
+        assemble_files(&state.tap_state.entries).len()
+    );
     assert_eq!(summary.log_warnings, 1);
     write_output("summary", "summary.txt", &format!("{summary:?}"));
 }

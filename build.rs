@@ -1,4 +1,3 @@
-
 fn main() {
     for entry in walkdir::WalkDir::new("src") {
         let entry = entry.unwrap();
