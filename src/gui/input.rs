@@ -3,6 +3,7 @@ use std::path::Path;
 use crate::backup::extract::{assemble_vms_files, build_directory_tree};
 use crate::log::parse::{correlate_log, parse_log};
 use crate::tap::reader::TapEntry;
+use crate::summary::compute_saveset_summary;
 
 use super::state::AppState;
 
@@ -11,6 +12,7 @@ pub fn load_log_file(path: &Path, state: &mut AppState) -> Result<(), String> {
     let data = parse_log(path)?;
     correlate_log(&mut state.tap_entries, &data);
     state.log = Some(data);
+    state.summary = Some(compute_saveset_summary(state));
     Ok(())
 }
 
@@ -23,4 +25,5 @@ pub fn set_tap_entries(entries: Vec<TapEntry>, state: &mut AppState) {
     if let Some(log) = &state.log {
         correlate_log(&mut state.tap_entries, log);
     }
+    state.summary = Some(compute_saveset_summary(state));
 }
