@@ -1,0 +1,14 @@
+/Users/keith/src/retro_tape_studio_v6_safe/retro_tape_studio_v6_safe/target/debug/deps/serde-5adc2aab71da4a81.d: /Users/keith/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/lib.rs /Users/keith/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/integer128.rs /Users/keith/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/mod.rs /Users/keith/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/de.rs /Users/keith/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/ser.rs /Users/keith/src/retro_tape_studio_v6_safe/retro_tape_studio_v6_safe/target/debug/build/serde-ecae490e9709dcaf/out/private.rs
+
+/Users/keith/src/retro_tape_studio_v6_safe/retro_tape_studio_v6_safe/target/debug/deps/libserde-5adc2aab71da4a81.rlib: /Users/keith/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/lib.rs /Users/keith/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/integer128.rs /Users/keith/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/mod.rs /Users/keith/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/de.rs /Users/keith/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/ser.rs /Users/keith/src/retro_tape_studio_v6_safe/retro_tape_studio_v6_safe/target/debug/build/serde-ecae490e9709dcaf/out/private.rs
+
+/Users/keith/src/retro_tape_studio_v6_safe/retro_tape_studio_v6_safe/target/debug/deps/libserde-5adc2aab71da4a81.rmeta: /Users/keith/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/lib.rs /Users/keith/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/integer128.rs /Users/keith/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/mod.rs /Users/keith/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/de.rs /Users/keith/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/ser.rs /Users/keith/src/retro_tape_studio_v6_safe/retro_tape_studio_v6_safe/target/debug/build/serde-ecae490e9709dcaf/out/private.rs
+
+/Users/keith/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/lib.rs:
+/Users/keith/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/integer128.rs:
+/Users/keith/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/mod.rs:
+/Users/keith/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/de.rs:
+/Users/keith/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/ser.rs:
+/Users/keith/src/retro_tape_studio_v6_safe/retro_tape_studio_v6_safe/target/debug/build/serde-ecae490e9709dcaf/out/private.rs:
+
+# env-dep:OUT_DIR=/Users/keith/src/retro_tape_studio_v6_safe/retro_tape_studio_v6_safe/target/debug/build/serde-ecae490e9709dcaf/out

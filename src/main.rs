@@ -1,0 +1,1 @@
+fn main(){println!("v6 safe");}

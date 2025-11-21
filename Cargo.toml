@@ -1,0 +1,15 @@
+[package]
+name="retro_tape_studio_v6_safe"
+version="1.0.0"
+edition="2021"
+build="build.rs"
+
+[build-dependencies]
+walkdir="2"
+
+[dependencies]
+eframe="0.22.0"
+egui="0.22.0"
+rfd="0.14"
+anyhow="1.0"
+bytes="1.6"
