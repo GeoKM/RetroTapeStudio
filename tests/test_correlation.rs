@@ -1,6 +1,8 @@
 use retro_tape_studio_v6_safe::log::parse::{correlate_log, LogData, LogEntry, LogLevel};
 use retro_tape_studio_v6_safe::tap::reader::{TapDataKind, TapEntry};
 use retro_tape_studio_v6_safe::tap::DetectedFormat;
+mod common;
+use common::write_output;
 
 #[test]
 fn correlates_warning_to_entries() {
@@ -29,4 +31,9 @@ fn correlates_warning_to_entries() {
 
     correlate_log(&mut entries, &log);
     assert!(entries[1].log_level.is_some());
+    write_output(
+        "correlation",
+        "correlation.txt",
+        &format!("{:?}", entries[1].log_level),
+    );
 }

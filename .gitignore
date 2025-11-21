@@ -10,4 +10,4 @@ target/
 .DS_Store
 
 # Test outputs
-tests/output/
+/tests/output/

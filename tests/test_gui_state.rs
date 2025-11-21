@@ -5,6 +5,8 @@ use retro_tape_studio_v6_safe::tap::reader::{TapDataKind, TapEntry};
 use retro_tape_studio_v6_safe::tap::DetectedFormat;
 use std::fs;
 use std::path::PathBuf;
+mod common;
+use common::write_output;
 
 #[test]
 fn loading_tap_and_log_resets_selection() {
@@ -21,6 +23,7 @@ fn loading_tap_and_log_resets_selection() {
     set_tap_entries(entries, &mut state);
     assert!(state.tap_state.selected_entry.is_none());
     assert!(state.selected_file.is_none());
+    write_output("tap", "state_reset.txt", "selection reset");
 }
 
 #[test]
@@ -41,6 +44,7 @@ fn loading_log_correlates() {
         Some(LogLevel::Warning) | Some(LogLevel::Error)
     ));
     let _ = fs::remove_file(path);
+    write_output("correlation", "state_correlation.txt", &format!("{:?}", state.tap_state.entries[0].log_level));
 }
 
 fn temp_log(content: &str) -> PathBuf {

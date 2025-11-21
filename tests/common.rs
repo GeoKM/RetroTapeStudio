@@ -34,3 +34,17 @@ pub fn read_tap_file_with_chunks(bytes: &[u8]) -> TapeResult<Vec<TapEntry>> {
 pub fn parse_log_path(path: &Path) -> TapeResult<retro_tape_studio_v6_safe::log::parse::LogData> {
     parse_log(path)
 }
+
+/// Ensure an output subdirectory exists under tests/output and return its path.
+pub fn ensure_output_dir(sub: &str) -> PathBuf {
+    let dir = Path::new("tests").join("output").join(sub);
+    let _ = fs::create_dir_all(&dir);
+    dir
+}
+
+/// Write a UTF-8 text file into tests/output/<sub>/<name> for diagnostics.
+pub fn write_output(sub: &str, name: &str, contents: &str) {
+    let dir = ensure_output_dir(sub);
+    let path = dir.join(name);
+    let _ = fs::write(path, contents);
+}

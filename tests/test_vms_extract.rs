@@ -2,6 +2,8 @@ use retro_tape_studio_v6_safe::backup::extract::{assemble_vms_files, VmsFileSyst
 use retro_tape_studio_v6_safe::backup::vms::BackupBlock;
 use retro_tape_studio_v6_safe::tap::reader::{TapDataKind, TapEntry};
 use retro_tape_studio_v6_safe::tap::DetectedFormat;
+mod common;
+use common::write_output;
 
 fn make_block(seq: u32, payload: &[u8]) -> BackupBlock {
     BackupBlock {
@@ -57,4 +59,9 @@ fn assembles_files_and_fs() {
     assert!(files[0].path.contains("DIR"));
     let fs = build_directory_tree(&files);
     assert!(matches!(fs, VmsFileSystem { .. }));
+    write_output(
+        "extract",
+        "vms_files.txt",
+        &format!("files={} path={}", files.len(), files[0].path),
+    );
 }

@@ -4,6 +4,8 @@ use retro_tape_studio_v6_safe::log::parse::{LogData, LogEntry, LogLevel};
 use retro_tape_studio_v6_safe::summary::compute_saveset_summary;
 use retro_tape_studio_v6_safe::tap::reader::{TapDataKind, TapEntry};
 use retro_tape_studio_v6_safe::tap::DetectedFormat;
+mod common;
+use common::write_output;
 
 #[test]
 fn computes_counts_and_histograms() {
@@ -34,4 +36,5 @@ fn computes_counts_and_histograms() {
     let summary = compute_saveset_summary(&state);
     assert_eq!(summary.total_files, assemble_files(&state.tap_state.entries).len());
     assert_eq!(summary.log_warnings, 1);
+    write_output("summary", "summary.txt", &format!("{summary:?}"));
 }

@@ -3,7 +3,7 @@ use retro_tape_studio_v6_safe::tap::reader::{read_tap_entry, TapDataKind};
 use retro_tape_studio_v6_safe::tap::DetectedFormat;
 
 mod common;
-use common::{load_tap_fixture, read_tap_file_with_chunks};
+use common::{load_tap_fixture, read_tap_file_with_chunks, write_output};
 
 fn make_vms_block() -> Vec<u8> {
     let mut raw = vec![0u8; 32];
@@ -21,6 +21,7 @@ fn detects_vms_backup() {
     let entry = read_tap_entry(&make_vms_block()).expect("parse");
     assert!(matches!(entry.kind, TapDataKind::VmsBlock(BackupBlock { .. })));
     assert_eq!(entry.detected_format, DetectedFormat::VmsBackup);
+    write_output("tap", "vms_detect.txt", &format!("{entry:?}"));
 }
 
 #[test]
@@ -36,6 +37,14 @@ fn detects_rsx_rt11_rsts() {
     assert_eq!(rsx_entry, DetectedFormat::Rsx11m);
     assert_eq!(rt11_entry, DetectedFormat::Rt11);
     assert_eq!(rsts_entry, DetectedFormat::RstsE);
+    write_output(
+        "tap",
+        "format_detect.txt",
+        &format!(
+            "RSX={:?} RT11={:?} RSTS={:?}",
+            rsx_entry, rt11_entry, rsts_entry
+        ),
+    );
 }
 
 #[test]
@@ -43,4 +52,5 @@ fn falls_back_to_raw() {
     let data = vec![1u8, 2, 3, 4];
     let entry = read_tap_entry(&data).unwrap();
     assert_eq!(entry.detected_format, DetectedFormat::Raw);
+    write_output("tap", "raw_detect.txt", &format!("{entry:?}"));
 }

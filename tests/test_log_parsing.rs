@@ -2,6 +2,8 @@ use std::fs;
 use std::path::PathBuf;
 
 use retro_tape_studio_v6_safe::log::parse::{parse_log, LogLevel};
+use common::write_output;
+mod common;
 
 #[test]
 fn parses_log_levels_and_metadata() {
@@ -16,6 +18,17 @@ fn parses_log_levels_and_metadata() {
     assert_eq!(data.metadata.get("Density").unwrap(), "DD");
     assert_eq!(data.metadata.get("Blocks read").unwrap(), "100");
     let _ = fs::remove_file(tmp);
+    write_output(
+        "log",
+        "log_metadata.txt",
+        &format!(
+            "warnings={} errors={} tracks={:?} density={:?}",
+            data.log_warnings(),
+            data.log_errors(),
+            data.metadata.get("Tracks"),
+            data.metadata.get("Density")
+        ),
+    );
 }
 
 trait LogCounts {
