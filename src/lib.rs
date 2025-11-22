@@ -1,4 +1,5 @@
 pub mod backup;
+pub mod core;
 pub mod gui;
 pub mod log;
 pub mod summary;
