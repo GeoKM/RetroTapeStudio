@@ -15,6 +15,11 @@ pub fn load_tap_fixture(name: &str) -> Vec<u8> {
     fs::read(fixture_path(name)).expect("fixture TAP missing")
 }
 
+/// Load the BB-H155C-SE VMS BACKUP tape fixture.
+pub fn load_bb_h155c() -> Vec<u8> {
+    load_tap_fixture("BB-H155C-SE.tap")
+}
+
 pub fn load_log_fixture(name: &str) -> String {
     fs::read_to_string(fixture_path(name)).expect("fixture LOG missing")
 }

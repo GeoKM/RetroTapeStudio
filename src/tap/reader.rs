@@ -1,3 +1,5 @@
+use std::convert::TryInto;
+
 use crate::backup::vms::{read_backup_block, BackupBlock};
 use crate::log::parse::LogLevel;
 use crate::tap::DetectedFormat;
@@ -15,6 +17,80 @@ pub struct TapEntry {
     pub kind: TapDataKind,
     pub log_level: Option<LogLevel>,
     pub detected_format: DetectedFormat,
+}
+
+/// Parse a SIMH-style TAP image into individual `TapEntry` records.
+///
+/// Records are prefixed by a 32-bit little-endian length. A trailing length
+/// word matching the prefix is consumed when present. Odd-length records are
+/// padded to an even boundary before the trailer.
+pub fn read_tap_records(data: &[u8]) -> TapeResult<Vec<TapEntry>> {
+    if data.is_empty() {
+        return Err(TapeError::Parse("empty TAP file".into()));
+    }
+
+    let mut entries = Vec::new();
+    let mut offset = 0usize;
+
+    while offset + 4 <= data.len() {
+        let record_len =
+            u32::from_le_bytes(data[offset..offset + 4].try_into().unwrap()) as usize;
+        offset += 4;
+
+        if record_len == 0 {
+            if offset + 4 <= data.len() {
+                let trailer =
+                    u32::from_le_bytes(data[offset..offset + 4].try_into().unwrap()) as usize;
+                if trailer == 0 {
+                    offset += 4;
+                }
+            }
+            continue;
+        }
+
+        if offset + record_len > data.len() {
+            return Err(TapeError::Parse(
+                "tape record length exceeds available data".into(),
+            ));
+        }
+
+        let record = &data[offset..offset + record_len];
+        let mut record_has_vms = false;
+        let mut record_offset = 0usize;
+
+        while record_offset + 4 <= record.len() {
+            let slice = &record[record_offset..];
+            if looks_like_vms_backup(slice) {
+                let block_size = u16::from_le_bytes(slice[0..2].try_into().unwrap()) as usize;
+                if record_offset + block_size > record.len() {
+                    break;
+                }
+                let entry = read_tap_entry(&record[record_offset..record_offset + block_size])?;
+                entries.push(entry);
+                record_offset += block_size;
+                record_has_vms = true;
+            } else {
+                record_offset += 1;
+            }
+        }
+
+        if !record_has_vms {
+            entries.push(read_tap_entry(record)?);
+        }
+
+        let padding = record_len % 2;
+        offset += record_len + padding;
+
+        if offset + 4 <= data.len() {
+            let trailer =
+                u32::from_le_bytes(data[offset..offset + 4].try_into().unwrap()) as usize;
+            if trailer == record_len {
+                offset += 4;
+            }
+        }
+    }
+
+    Ok(entries)
 }
 
 /// Parse a TAP record from already isolated record bytes.

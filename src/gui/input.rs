@@ -8,7 +8,7 @@ use rfd::FileDialog;
 use crate::backup::extract::{assemble_vms_files, build_directory_tree};
 use crate::log::parse::{correlate_log, parse_log};
 use crate::summary::compute_saveset_summary;
-use crate::tap::reader::{read_tap_entry, TapEntry};
+use crate::tap::reader::{read_tap_records, TapEntry};
 use crate::TapeResult;
 
 use super::state::AppState;
@@ -31,15 +31,7 @@ pub fn parse_tap_file(path: &Path) -> TapeResult<Vec<TapEntry>> {
     if data.is_empty() {
         return Err(crate::TapeError::Parse("empty TAP file".into()));
     }
-    let mut entries = Vec::new();
-    for chunk in data.chunks(512) {
-        if chunk.is_empty() {
-            continue;
-        }
-        let entry = read_tap_entry(chunk)?;
-        entries.push(entry);
-    }
-    Ok(entries)
+    read_tap_records(&data)
 }
 
 /// Store TAP entries (e.g., after reading a TAP image) and correlate with any loaded log.
