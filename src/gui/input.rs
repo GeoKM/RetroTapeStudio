@@ -63,8 +63,10 @@ pub fn input_tab(ui: &mut egui::Ui, state: &mut AppState) {
                 let mut tap_status = None;
                 if let Some(path_str) = path.to_str() {
                     match read_tap_blocks(path_str) {
-                        Ok(blocks) => {
-                            state.tap_state.blocks = blocks;
+                        Ok(mut blocks) => {
+                            let detected = crate::core::detect::analyze_blocks(&mut blocks);
+                            state.blocks = blocks;
+                            state.detected_format = detected;
                         }
                         Err(err) => tap_status = Some(format!("TAP load failed: {err}")),
                     }
