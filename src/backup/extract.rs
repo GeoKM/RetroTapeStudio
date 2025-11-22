@@ -2,7 +2,7 @@
 use crate::backup::vms::{
     parse_directory_record, parse_fh2_record, parse_xh2_record, BackupBlock, VmsFileHeader,
 };
-use crate::tap::reader::{TapDataKind, TapEntry};
+use crate::tap::legacy::{TapDataKind, TapEntry};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ExtractedFile {
@@ -217,7 +217,7 @@ fn insert_file(root: &mut DirectoryNode, path: &str, name: String) {
 mod tests {
     use super::{assemble_files, assemble_vms_files, build_directory_tree, ExtractedFile, VmsFile};
     use crate::backup::vms::{BackupBlock, VmsFileHeader};
-    use crate::tap::reader::{TapDataKind, TapEntry};
+    use crate::tap::legacy::{TapDataKind, TapEntry};
     use crate::tap::DetectedFormat;
 
     fn make_block(seq: u32, payload: &[u8]) -> BackupBlock {

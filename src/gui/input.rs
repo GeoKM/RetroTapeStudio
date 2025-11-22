@@ -8,7 +8,8 @@ use rfd::FileDialog;
 use crate::backup::extract::{assemble_vms_files, build_directory_tree};
 use crate::log::parse::{correlate_log, parse_log};
 use crate::summary::compute_saveset_summary;
-use crate::tap::reader::{read_tap_records, TapEntry};
+use crate::tap::legacy::{read_tap_records, TapEntry};
+use crate::tap::reader::read_tap_blocks;
 use crate::TapeResult;
 
 use super::state::AppState;
@@ -59,12 +60,28 @@ pub fn input_tab(ui: &mut egui::Ui, state: &mut AppState) {
     ui.horizontal(|ui| {
         if ui.button("Load TAP file").clicked() {
             if let Some(path) = FileDialog::new().add_filter("TAP", &["tap"]).pick_file() {
+                let mut tap_status = None;
+                if let Some(path_str) = path.to_str() {
+                    match read_tap_blocks(path_str) {
+                        Ok(blocks) => {
+                            state.tap_state.blocks = blocks;
+                        }
+                        Err(err) => tap_status = Some(format!("TAP load failed: {err}")),
+                    }
+                } else {
+                    tap_status = Some("TAP load failed: invalid path encoding".to_string());
+                }
+
                 match parse_tap_file(&path) {
                     Ok(entries) => {
                         set_tap_entries(entries, state);
                         state.summary_status = format!("Loaded TAP {}", path.display());
                     }
-                    Err(err) => state.summary_status = format!("TAP load failed: {err}"),
+                    Err(err) => tap_status = Some(format!("TAP load failed: {err}")),
+                }
+
+                if let Some(status) = tap_status {
+                    state.summary_status = status;
                 }
             }
         }

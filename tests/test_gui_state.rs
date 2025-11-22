@@ -1,7 +1,7 @@
 use retro_tape_studio_v6_safe::gui::input::{load_log_file, set_tap_entries};
 use retro_tape_studio_v6_safe::gui::state::AppState;
 use retro_tape_studio_v6_safe::log::parse::LogLevel;
-use retro_tape_studio_v6_safe::tap::reader::{TapDataKind, TapEntry};
+use retro_tape_studio_v6_safe::tap::legacy::{TapDataKind, TapEntry};
 use retro_tape_studio_v6_safe::tap::DetectedFormat;
 use std::fs;
 use std::path::PathBuf;

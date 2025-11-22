@@ -1,5 +1,6 @@
-//! TAP module: parses DEC-style `.TAP` records, detects formats, and surfaces `TapEntry` values for downstream processing.
+//! TAP module: parses DEC-style `.TAP` records, detects formats, and surfaces tape data for downstream processing.
 pub mod reader;
+pub mod legacy;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum DetectedFormat {

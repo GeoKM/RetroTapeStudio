@@ -1,5 +1,5 @@
 use retro_tape_studio_v6_safe::backup::vms::BackupBlock;
-use retro_tape_studio_v6_safe::tap::reader::{read_tap_entry, TapDataKind};
+use retro_tape_studio_v6_safe::tap::legacy::{read_tap_entry, TapDataKind};
 use retro_tape_studio_v6_safe::tap::DetectedFormat;
 
 mod common;

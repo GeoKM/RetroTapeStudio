@@ -1,5 +1,5 @@
 use retro_tape_studio_v6_safe::log::parse::{correlate_log, LogData, LogEntry, LogLevel};
-use retro_tape_studio_v6_safe::tap::reader::{TapDataKind, TapEntry};
+use retro_tape_studio_v6_safe::tap::legacy::{TapDataKind, TapEntry};
 use retro_tape_studio_v6_safe::tap::DetectedFormat;
 mod common;
 use common::write_output;

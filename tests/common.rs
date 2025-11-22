@@ -4,7 +4,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 use retro_tape_studio_v6_safe::log::parse::parse_log;
-use retro_tape_studio_v6_safe::tap::reader::{read_tap_entry, TapEntry};
+use retro_tape_studio_v6_safe::tap::legacy::{read_tap_entry, TapEntry};
 use retro_tape_studio_v6_safe::TapeResult;
 
 pub fn fixture_path(name: &str) -> PathBuf {

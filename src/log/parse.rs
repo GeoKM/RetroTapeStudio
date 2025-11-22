@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
 
-use crate::tap::reader::TapEntry;
+use crate::tap::legacy::TapEntry;
 use crate::{TapeError, TapeResult};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -117,7 +117,7 @@ fn parse_drive_metadata(line: &str, metadata: &mut HashMap<String, String>) {
 #[cfg(test)]
 mod tests {
     use super::{correlate_log, parse_drive_metadata, parse_log, LogData, LogEntry, LogLevel};
-    use crate::tap::reader::{TapDataKind, TapEntry};
+    use crate::tap::legacy::{TapDataKind, TapEntry};
     use crate::tap::DetectedFormat;
     use std::collections::HashMap;
     use std::fs;

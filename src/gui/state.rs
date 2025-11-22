@@ -1,9 +1,10 @@
 //! Shared GUI state structures and active tab tracking.
 use crate::backup::extract::{VmsFile, VmsFileSystem};
+use crate::core::block::TapeBlock;
 use crate::gui::extraction::ExtractionState;
 use crate::log::parse::LogData;
 use crate::summary::SaveSetSummary;
-use crate::tap::reader::TapEntry;
+use crate::tap::legacy::TapEntry;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum MainTab {
@@ -29,10 +30,21 @@ pub struct AppState {
     pub extraction: ExtractionState,
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone)]
 pub struct TapState {
+    pub blocks: Vec<TapeBlock>,
     pub entries: Vec<TapEntry>,
     pub selected_entry: Option<usize>,
+}
+
+impl Default for TapState {
+    fn default() -> Self {
+        Self {
+            blocks: Vec::new(),
+            entries: Vec::new(),
+            selected_entry: None,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Default)]

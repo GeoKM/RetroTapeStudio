@@ -2,7 +2,7 @@ use retro_tape_studio_v6_safe::backup::extract::{
     assemble_vms_files, build_directory_tree, VmsFileSystem,
 };
 use retro_tape_studio_v6_safe::backup::vms::BackupBlock;
-use retro_tape_studio_v6_safe::tap::reader::{TapDataKind, TapEntry};
+use retro_tape_studio_v6_safe::tap::legacy::{TapDataKind, TapEntry};
 use retro_tape_studio_v6_safe::tap::DetectedFormat;
 mod common;
 use common::write_output;

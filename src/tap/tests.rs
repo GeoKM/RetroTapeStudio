@@ -1,4 +1,4 @@
-use crate::tap::reader::read_tap_entry;
+use crate::tap::legacy::read_tap_entry;
 use crate::TapeError;
 
 #[test]
@@ -24,6 +24,6 @@ fn silent_eof_reports_error() {
     let entry = read_tap_entry(&data).expect("should fall back to raw");
     assert!(matches!(
         entry.kind,
-        crate::tap::reader::TapDataKind::Raw(_)
+        crate::tap::legacy::TapDataKind::Raw(_)
     ));
 }

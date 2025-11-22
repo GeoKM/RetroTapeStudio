@@ -1,7 +1,7 @@
 use retro_tape_studio_v6_safe::backup::extract::assemble_files;
 use retro_tape_studio_v6_safe::gui::input::set_tap_entries;
 use retro_tape_studio_v6_safe::gui::state::AppState;
-use retro_tape_studio_v6_safe::tap::reader::{read_tap_records, TapDataKind};
+use retro_tape_studio_v6_safe::tap::legacy::{read_tap_records, TapDataKind};
 use retro_tape_studio_v6_safe::tap::DetectedFormat;
 use std::fs;
 

@@ -2,7 +2,7 @@
 use egui::{self, Align, Color32, Layout, ScrollArea, Vec2, Window};
 
 use crate::log::parse::LogLevel;
-use crate::tap::reader::{TapDataKind, TapEntry};
+use crate::tap::legacy::{TapDataKind, TapEntry};
 use crate::utils::hex::format_hex;
 use crate::utils::text::sanitize_display;
 

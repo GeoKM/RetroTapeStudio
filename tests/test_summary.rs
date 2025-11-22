@@ -2,7 +2,7 @@ use retro_tape_studio_v6_safe::backup::extract::assemble_files;
 use retro_tape_studio_v6_safe::gui::state::AppState;
 use retro_tape_studio_v6_safe::log::parse::{LogData, LogEntry, LogLevel};
 use retro_tape_studio_v6_safe::summary::compute_saveset_summary;
-use retro_tape_studio_v6_safe::tap::reader::{TapDataKind, TapEntry};
+use retro_tape_studio_v6_safe::tap::legacy::{TapDataKind, TapEntry};
 use retro_tape_studio_v6_safe::tap::DetectedFormat;
 mod common;
 use common::write_output;
