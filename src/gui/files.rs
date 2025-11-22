@@ -1,9 +1,10 @@
 //! Files tab: displays assembled VMS files with metadata and a hex viewer modal for payloads.
-use egui::{self, ScrollArea, Window};
+use egui::{self, Align, Layout, ScrollArea, Vec2, Window};
 
 use crate::backup::extract::VmsFile;
 use crate::backup::vms::{format_protection, RecordFormat};
 use crate::utils::hex::format_hex;
+use crate::utils::text::{is_mostly_text, sanitize_display};
 
 use super::state::AppState;
 
@@ -15,16 +16,22 @@ pub fn files_tab(ui: &mut egui::Ui, state: &mut AppState) {
         .auto_shrink([false, false])
         .show(ui, |ui| {
             for (idx, file) in state.vms_files.iter().enumerate() {
+                let sanitized_name = sanitize_display(&format!("{};{}", file.headers.full_name(), file.headers.version));
                 let payload_len = total_size(file);
-                let content_hint = text_preview(file);
+                let content_label = if is_mostly_text(&collect_payload_prefix(file, 512)) {
+                    "(text)"
+                } else {
+                    "(binary)"
+                };
                 let file_type = file_type_label(file);
-                ui.horizontal(|ui| {
-                    ui.label(&file.name);
+                ui.horizontal_wrapped(|ui| {
+                    ui.label(sanitized_name);
                     ui.label(format!("blocks: {}", file.blocks.len()));
                     ui.label(format!("payload: {} bytes", payload_len));
                     ui.label(record_format_text(&file.headers.record_format));
                     ui.label(format!("type: {}", file_type));
-                    ui.label(content_hint);
+                    ui.label(format!("UIC {:X}", file.headers.owner_uic));
+                    ui.label(content_label);
                     if ui.button("View details").clicked() {
                         state.selected_file = Some(idx);
                         state.file_hex_viewer = None;
@@ -42,8 +49,10 @@ pub fn files_tab(ui: &mut egui::Ui, state: &mut AppState) {
                 .collapsible(false)
                 .resizable(true)
                 .show(ui.ctx(), |ui| {
-                    ui.heading(&file.name);
-                    ui.label(format!("Path: {}", file.path));
+                    let display_name =
+                        sanitize_display(&format!("{};{}", file.headers.full_name(), file.headers.version));
+                    ui.heading(display_name);
+                    ui.label(format!("Path: {}", sanitize_display(&file.path)));
                     ui.label(format!(
                         "Record format: {}",
                         record_format_text(&file.headers.record_format)
@@ -70,7 +79,7 @@ pub fn files_tab(ui: &mut egui::Ui, state: &mut AppState) {
                         "RATTR: {} RATTNR: {} RATTNL: {}",
                         file.headers.rms.rattr, file.headers.rms.rattnr, file.headers.rms.rattnl
                     ));
-                    ui.label(format!("Preview: {}", text_preview(file)));
+                    ui.label(format!("UIC: {:X}", file.headers.owner_uic));
                     ui.separator();
                     if ui.button("Open hex viewer").clicked() {
                         open_hex = true;
@@ -94,19 +103,35 @@ pub fn files_tab(ui: &mut egui::Ui, state: &mut AppState) {
     if let Some(idx) = state.file_hex_viewer {
         if let Some(file) = state.vms_files.get(idx) {
             let concatenated = collect_payload(file);
-            let name = file.name.clone();
+            let name =
+                sanitize_display(&format!("{};{}", file.headers.full_name(), file.headers.version));
             let mut close = false;
+            let ctx = ui.ctx().clone();
+            let max_height = ctx.available_rect().height() * 0.9;
+            let mut open = true;
             Window::new("Hex Viewer")
                 .collapsible(false)
                 .resizable(true)
+                .default_size(Vec2::new(ctx.available_rect().width() * 0.9, max_height))
+                .open(&mut open)
                 .show(ui.ctx(), |ui| {
+                    ui.with_layout(Layout::right_to_left(Align::Min), |ui| {
+                        if ui.button("Close").clicked() {
+                            close = true;
+                        }
+                    });
+                    ui.separator();
                     ui.heading(&name);
-                    ui.monospace(format_hex(&concatenated));
+                    ScrollArea::vertical()
+                        .auto_shrink([false, false])
+                        .show(ui, |ui| {
+                            ui.monospace(format_hex(&concatenated));
+                        });
                     if ui.button("Close").clicked() {
                         close = true;
                     }
                 });
-            if close {
+            if close || !open {
                 state.file_hex_viewer = None;
             }
         } else {
@@ -135,31 +160,6 @@ fn file_type_label(file: &VmsFile) -> String {
     } else {
         file.headers.file_type.clone()
     }
-}
-
-fn text_preview(file: &VmsFile) -> String {
-    let sample = collect_payload_prefix(file, 256);
-    std::str::from_utf8(&sample)
-        .ok()
-        .and_then(|text| {
-            let printable = text
-                .chars()
-                .all(|c| !c.is_control() || c == '\n' || c == '\r' || c == '\t');
-            if !printable {
-                return None;
-            }
-            let trimmed = text.trim();
-            if trimmed.is_empty() {
-                return None;
-            }
-            let snippet: String = trimmed.chars().take(80).collect();
-            Some(if trimmed.len() > snippet.len() {
-                format!("{snippet}...")
-            } else {
-                snippet
-            })
-        })
-        .unwrap_or_else(|| "(binary)".to_string())
 }
 
 fn collect_payload(file: &VmsFile) -> Vec<u8> {

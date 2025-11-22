@@ -4,6 +4,7 @@ use std::collections::HashMap;
 use crate::backup::vms::{format_protection, RecordFormat};
 use crate::gui::state::AppState;
 use crate::log::parse::{LogData, LogLevel};
+use crate::utils::text::sanitize_display;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct SaveSetSummary {
@@ -48,14 +49,17 @@ pub fn compute_saveset_summary(state: &AppState) -> SaveSetSummary {
         total_blocks += file.blocks.len();
         block_size_sum += block_size;
 
-        let name = file.path.clone();
+        let name = format!(
+            "{};{} [UIC {:X}]",
+            file.path, file.headers.version, file.headers.owner_uic
+        );
         match largest {
             Some((_, size)) if size >= payload_size => {}
-            _ => largest = Some((name.clone(), payload_size)),
+            _ => largest = Some((sanitize_display(&name), payload_size)),
         }
         match smallest {
             Some((_, size)) if size <= payload_size => {}
-            _ => smallest = Some((name.clone(), payload_size)),
+            _ => smallest = Some((sanitize_display(&name), payload_size)),
         }
 
         let rfm_key = record_format_text(&file.headers.record_format).to_string();
@@ -124,8 +128,17 @@ fn log_stats(log: &LogData) -> (usize, usize, Option<String>, Option<String>, Op
             LogLevel::Info => {}
         }
     }
-    let tracks = log.metadata.get("Tracks").cloned();
-    let density = log.metadata.get("Density").cloned();
-    let blocks_read = log.metadata.get("Blocks read").cloned();
+    let tracks = log
+        .metadata
+        .get("Tracks")
+        .map(|s| sanitize_display(s));
+    let density = log
+        .metadata
+        .get("Density")
+        .map(|s| sanitize_display(s));
+    let blocks_read = log
+        .metadata
+        .get("Blocks read")
+        .map(|s| sanitize_display(s));
     (warnings, errors, tracks, density, blocks_read)
 }

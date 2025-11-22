@@ -1,9 +1,10 @@
 //! Contents tab: lists TAP entries with format and log badges plus a hex viewer popup.
-use egui::{self, Color32, ScrollArea, Window};
+use egui::{self, Align, Color32, Layout, ScrollArea, Vec2, Window};
 
 use crate::log::parse::LogLevel;
 use crate::tap::reader::{TapDataKind, TapEntry};
 use crate::utils::hex::format_hex;
+use crate::utils::text::sanitize_display;
 
 use super::state::AppState;
 
@@ -65,19 +66,36 @@ pub fn contents_table(ui: &mut egui::Ui, entries: &[TapEntry], app_state: &mut A
 
     if let Some(idx) = app_state.tap_state.selected_entry {
         if let Some(entry) = entries.get(idx) {
+            let mut close = false;
+            let mut open = true;
+            let ctx = ui.ctx().clone();
+            let max_height = ctx.available_rect().height() * 0.9;
             Window::new("Hex Viewer")
                 .collapsible(false)
                 .resizable(true)
+                .default_size(Vec2::new(ctx.available_rect().width() * 0.9, max_height))
+                .open(&mut open)
                 .show(ui.ctx(), |ui| {
+                    ui.with_layout(Layout::right_to_left(Align::Min), |ui| {
+                        if ui.button("Close").clicked() {
+                            close = true;
+                        }
+                    });
+                    ui.separator();
+                    ui.label(sanitize_display(&format!("Entry {}", idx)));
                     let bytes: Vec<u8> = match &entry.kind {
                         TapDataKind::Raw(data) => data.clone(),
                         TapDataKind::VmsBlock(block) => block.payload.clone(),
                     };
-                    ui.monospace(format_hex(&bytes));
-                    if ui.button("Close").clicked() {
-                        app_state.tap_state.selected_entry = None;
-                    }
+                    ScrollArea::vertical()
+                        .auto_shrink([false, false])
+                        .show(ui, |ui| {
+                            ui.monospace(format_hex(&bytes));
+                        });
                 });
+            if close || !open {
+                app_state.tap_state.selected_entry = None;
+            }
         } else {
             app_state.tap_state.selected_entry = None;
         }
