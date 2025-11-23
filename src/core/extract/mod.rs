@@ -2,6 +2,7 @@ pub mod raw;
 pub mod rsts;
 pub mod rsx;
 pub mod rt11;
+pub mod vms;
 
 use std::io;
 use std::path::Path;
@@ -16,7 +17,7 @@ pub fn extract_file(file: &TapeFile, blocks: &[TapeBlock], outdir: &Path) -> io:
         FileMetadata::Rsx(_) => rsx::extract_rsx_file(file, blocks, outdir),
         FileMetadata::Rt11(_) => rt11::extract_rt11_file(file, blocks, outdir),
         FileMetadata::Rsts(_) => rsts::extract_rsts_file(file, blocks, outdir),
-        FileMetadata::Vms(_) => crate::core::vms::extract::extract_vms_file(file, blocks, outdir),
+        FileMetadata::Vms(_) => vms::extract_vms_dispatch(file, blocks, outdir),
         FileMetadata::Raw => raw::extract_raw_file(file, blocks, outdir),
     }
 }
