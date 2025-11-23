@@ -1,5 +1,6 @@
 # Build artifacts
 target/
+target/*
 
 # Dependency lock (keep for app binaries; remove if publishing as a pure library)
 # Cargo.lock

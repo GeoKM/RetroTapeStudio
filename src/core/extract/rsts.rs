@@ -7,7 +7,7 @@ use crate::core::file::{FileMetadata, TapeFile};
 
 use super::sanitize_filename;
 
-pub fn extract(file: &TapeFile, blocks: &[TapeBlock], outdir: &Path) -> io::Result<()> {
+pub fn extract_rsts_file(file: &TapeFile, blocks: &[TapeBlock], outdir: &Path) -> io::Result<()> {
     let mut data = Vec::new();
     for idx in &file.blocks {
         if let Some(b) = blocks.iter().find(|blk| blk.index == *idx) {

@@ -7,7 +7,7 @@ use crate::core::file::{FileMetadata, TapeFile};
 
 use super::sanitize_filename;
 
-pub fn extract(file: &TapeFile, blocks: &[TapeBlock], outdir: &Path) -> io::Result<()> {
+pub fn extract_rsx_file(file: &TapeFile, blocks: &[TapeBlock], outdir: &Path) -> io::Result<()> {
     let path = outdir.join(sanitize_filename(&file.path.to_string_path()));
 
     if let FileMetadata::Rsx(meta) = &file.metadata {
