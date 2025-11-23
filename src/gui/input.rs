@@ -74,7 +74,7 @@ pub fn input_tab(ui: &mut egui::Ui, state: &mut AppState) {
                         Ok(mut blocks) => {
                             let detected = crate::core::detect::analyze_blocks(&mut blocks);
                             state.blocks = blocks;
-                            state.detected_format = detected;
+                            state.detected_format = detected.clone();
                             state.files = if detected == TapeFormat::Vms {
                                 crate::core::vms::reconstruct::reconstruct_vms(&state.blocks)
                             } else {

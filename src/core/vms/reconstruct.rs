@@ -9,7 +9,7 @@ pub fn reconstruct_vms(blocks: &[TapeBlock]) -> Vec<TapeFile> {
     for blk in blocks {
         let Some(vms) = (match &blk.classification {
             crate::core::block::BlockClassification::Vms(_) => {
-                super::block::classify_vms_block(&blk.raw, blk.index)
+                super::block::classify_vms_block(blk.raw.as_ref(), blk.index)
             }
             _ => None,
         }) else {
@@ -17,32 +17,30 @@ pub fn reconstruct_vms(blocks: &[TapeBlock]) -> Vec<TapeFile> {
         };
 
         match vms.kind {
-            VmsBlockKind::Header => {
+            VmsBlockKind::FileHeader(hdr) => {
                 if let Some((header, block_list)) = current.take() {
                     results.push(make_file(header, block_list, blocks));
                 }
-                let hdr = VmsFileHeader::parse(&vms.raw).unwrap_or(VmsFileHeader {
-                    filename: "UNKNOWN".into(),
-                    version: 0,
-                    uic: (0, 0),
-                    record_format: 0,
-                    record_attributes: 0,
-                    block_count: 0,
-                });
-                current = Some((hdr, vec![blk.index]));
+                let filename = if hdr.file_type.is_empty() {
+                    hdr.file_name.clone()
+                } else {
+                    format!("{}.{}", hdr.file_name, hdr.file_type)
+                };
+                let header = VmsFileHeader {
+                    filename,
+                    version: hdr.version,
+                    uic: hdr.uic,
+                    record_format: hdr.record_format,
+                    record_attributes: u16::from(hdr.record_attributes),
+                    block_count: hdr.block_count,
+                };
+                current = Some((header, vec![blk.index]));
             }
 
-            VmsBlockKind::FileData | VmsBlockKind::Continuation => {
+            VmsBlockKind::FileData(_) => {
                 if let Some((_hdr, list)) = &mut current {
                     list.push(blk.index);
                 }
-            }
-
-            VmsBlockKind::Trailer => {
-                if let Some((header, block_list)) = current.take() {
-                    results.push(make_file(header, block_list, blocks));
-                }
-                break;
             }
 
             _ => {}

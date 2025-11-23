@@ -1,5 +1,3 @@
-use super::*;
-
 #[derive(Debug, Clone)]
 pub struct VmsFileHeader {
     pub filename: String,
