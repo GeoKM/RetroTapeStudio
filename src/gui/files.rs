@@ -1,11 +1,11 @@
 //! Files tab: displays reconstructed file tree with metadata and hex viewers.
+use egui::TextStyle;
 use egui::{self, Align, Layout, ScrollArea, Vec2, Window};
 use rfd::FileDialog;
 
 use crate::core::block::TapeBlock;
 use crate::core::extract::extract_file;
 use crate::core::file::{FileMetadata, TapeFile};
-use crate::utils::hex::format_hex_with_ascii;
 use crate::utils::text::sanitize_display;
 
 use super::state::AppState;
@@ -92,7 +92,7 @@ pub fn files_tab(ui: &mut egui::Ui, state: &mut AppState) {
                         ui.label(line);
                     }
                     ui.separator();
-                    if !file.blocks.is_empty() && ui.button("Open hex viewer").clicked() {
+                    if !file.blocks.is_empty() && ui.button("Open Hex Viewer").clicked() {
                         open_hex = true;
                     }
                     if ui.button("Close").clicked() {
@@ -134,7 +134,32 @@ pub fn files_tab(ui: &mut egui::Ui, state: &mut AppState) {
                     ScrollArea::vertical()
                         .auto_shrink([false, false])
                         .show(ui, |ui| {
-                            ui.monospace(format_hex_with_ascii(&bytes));
+                            ui.style_mut().override_text_style = Some(TextStyle::Monospace);
+                            let mut line = 0usize;
+                            let mut pos = 0usize;
+                            while pos < bytes.len() {
+                                let chunk = &bytes[pos..usize::min(pos + 16, bytes.len())];
+                                let mut hex_part = String::new();
+                                let mut ascii_part = String::new();
+                                for b in chunk {
+                                    hex_part.push_str(&format!("{:02X} ", b));
+                                    let c = char::from(*b);
+                                    if c.is_ascii_graphic() || c == ' ' {
+                                        ascii_part.push(c);
+                                    } else {
+                                        ascii_part.push('.');
+                                    }
+                                }
+                                ui.label(format!(
+                                    "{:08X}:  {:<48}  |{}|",
+                                    line * 16,
+                                    hex_part,
+                                    ascii_part
+                                ));
+                                pos += 16;
+                                line += 1;
+                            }
+                            ui.style_mut().override_text_style = None;
                         });
                     if ui.button("Close").clicked() {
                         close = true;
@@ -192,8 +217,52 @@ pub fn describe_metadata(file: &TapeFile) -> Vec<String> {
             format!("Status: 0x{:04X}", meta.status),
             format!("Blocks: {}", meta.blocks),
         ],
-        FileMetadata::Vms(_) => vec!["VMS BACKUP File".to_string()],
+        FileMetadata::Vms(meta) => {
+            let mut out = Vec::new();
+            out.push(format!(
+                "File ID: ({}, {}, {})",
+                meta.file_id.0, meta.file_id.1, meta.file_id.2
+            ));
+            out.push(format!("Revision: {}", meta.rev));
+            out.push(format!("Sequence: {}", meta.seq));
+            out.push(format!(
+                "Owner UIC: {:o},{:o}",
+                meta.owner_uic.0, meta.owner_uic.1
+            ));
+            out.push(format!("Protection: {:o}", meta.protection));
+            out.push(format!(
+                "Record Format: {}",
+                describe_record_format(meta.record_format)
+            ));
+            out.push(format!(
+                "Record Attributes: 0x{:02X}",
+                meta.record_attributes
+            ));
+            out.push(format!("Record Length: {}", meta.record_length));
+            out.push(format!("File Type: {}", meta.file_type));
+            out.push(format!("Backup Flags: 0x{:04X}", meta.backup_flags));
+            if let Some(t) = &meta.creation_time {
+                out.push(format!("Created: {}", t));
+            }
+            if let Some(t) = &meta.revision_time {
+                out.push(format!("Revised: {}", t));
+            }
+            if let Some(t) = &meta.expiration_time {
+                out.push(format!("Expires: {}", t));
+            }
+            out
+        }
         FileMetadata::Raw => vec!["Raw data, no metadata".to_string()],
+    }
+}
+
+fn describe_record_format(rfm: u8) -> &'static str {
+    match rfm {
+        0 => "Undefined",
+        1 => "Fixed",
+        2 => "Variable",
+        3 => "VFC",
+        _ => "Unknown",
     }
 }
 
