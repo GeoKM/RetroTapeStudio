@@ -47,12 +47,41 @@ fn build_file_from_group(fh2: &Fh2Record, group: &VmsCollected) -> TapeFile {
         .map(|vb| vb.payload.len() as u64)
         .sum::<u64>();
 
+    let mut metadata = VmsFileMetadata {
+        file_id: (0, 0, 0),
+        rev: fh2.version,
+        seq: 0,
+        owner_uic: fh2.uic,
+        protection: 0,
+        record_format: fh2.record_format,
+        record_attributes: fh2.record_attributes,
+        record_length: 0,
+        file_type: fh2.file_type.clone(),
+        backup_flags: 0,
+        creation_time: None,
+        revision_time: None,
+        expiration_time: None,
+    };
+
+    if let Some(xh3) = &group.xh3 {
+        metadata.file_id = (
+            (xh3.file_id & 0xFFFF) as u16,
+            ((xh3.file_id >> 16) & 0xFFFF) as u16,
+            0,
+        );
+        metadata.seq = xh3.sequence_number;
+    }
+
+    if let Some(xh2) = &group.xh2 {
+        metadata.backup_flags = xh2.backup_flags;
+    }
+
     TapeFile {
         format: crate::core::block::TapeFormat::Vms,
         path: TapePath::new(vec![full]),
         size_bytes: size,
         blocks: indices,
-        metadata: FileMetadata::Vms(VmsFileMetadata { placeholder: false }),
+        metadata: FileMetadata::Vms(metadata),
         children: Vec::new(),
     }
 }

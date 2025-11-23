@@ -1,16 +1,33 @@
 pub mod builder;
+pub mod vms;
 
 use crate::core::block::{BlockClassification, TapeBlock, TapeFormat};
 use crate::core::file::TapeFile;
 
 pub fn reconstruct_all(blocks: &[TapeBlock]) -> Vec<TapeFile> {
+    let mut out = Vec::new();
+    let mut added_vms = false;
+
     match detect_dominant_format(blocks) {
-        TapeFormat::Vms => crate::core::vms::reconstruct::reconstruct_vms(blocks),
-        TapeFormat::Rsx => builder::reconstruct_rsx(blocks),
-        TapeFormat::Rt11 => builder::reconstruct_rt11(blocks),
-        TapeFormat::Rsts => builder::reconstruct_rsts(blocks),
-        _ => Vec::new(),
+        TapeFormat::Vms => {
+            out.extend(vms::reconstruct_vms(blocks));
+            added_vms = true;
+        }
+        TapeFormat::Rsx => out.extend(builder::reconstruct_rsx(blocks)),
+        TapeFormat::Rt11 => out.extend(builder::reconstruct_rt11(blocks)),
+        TapeFormat::Rsts => out.extend(builder::reconstruct_rsts(blocks)),
+        _ => {}
+    };
+
+    if !added_vms
+        && blocks
+            .iter()
+            .any(|b| matches!(b.classification, BlockClassification::Vms(_)))
+    {
+        out.extend(vms::reconstruct_vms(blocks));
     }
+
+    out
 }
 
 fn detect_dominant_format(blocks: &[TapeBlock]) -> TapeFormat {

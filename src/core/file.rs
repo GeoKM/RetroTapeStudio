@@ -34,9 +34,22 @@ pub enum FileMetadata {
     Raw,
 }
 
+/// Fully decoded VMS header metadata (FH2 + optional XH2)
 #[derive(Debug, Clone)]
 pub struct VmsFileMetadata {
-    pub placeholder: bool,
+    pub file_id: (u16, u16, u16),
+    pub rev: u16,
+    pub seq: u16,
+    pub owner_uic: (u16, u16),
+    pub protection: u16,
+    pub record_format: u8,
+    pub record_attributes: u8,
+    pub record_length: u16,
+    pub file_type: String,
+    pub backup_flags: u16,
+    pub creation_time: Option<String>,
+    pub revision_time: Option<String>,
+    pub expiration_time: Option<String>,
 }
 
 #[derive(Debug, Clone)]

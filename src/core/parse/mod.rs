@@ -1,6 +1,7 @@
 pub mod rsts;
 pub mod rsx;
 pub mod rt11;
+pub mod vms;
 
 use crate::core::block::{BlockClassification, TapeBlock};
 
