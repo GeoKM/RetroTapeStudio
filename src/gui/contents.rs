@@ -1,61 +1,41 @@
-//! Contents tab: lists TAP entries with format and log badges plus a hex viewer popup.
-use egui::{self, Align, Color32, Layout, ScrollArea, Vec2, Window};
+//! Contents tab: lists reconstructed tape files with quick hex viewing.
+use egui::{self, Align, Layout, ScrollArea, Vec2, Window};
 
-use crate::log::parse::LogLevel;
-use crate::tap::legacy::{TapDataKind, TapEntry};
 use crate::utils::hex::format_hex;
 use crate::utils::text::sanitize_display;
 
+use super::files::{collect_block_bytes, describe_metadata, flatten_files_tree};
 use super::state::AppState;
 
-/// Render a table of TAP entries inside the Contents tab.
-pub fn contents_table(ui: &mut egui::Ui, entries: &[TapEntry], app_state: &mut AppState) {
-    // Header row
+/// Render a table of reconstructed files inside the Contents tab.
+pub fn contents_table(ui: &mut egui::Ui, app_state: &mut AppState) {
     ui.horizontal(|ui| {
         ui.label("Index");
-        ui.label("Length");
+        ui.label("Path");
         ui.label("Format");
-        ui.label("Kind");
-        ui.label("Phase");
-        ui.label("Sequence");
-        ui.label("Checksum");
-        ui.label("Log");
+        ui.label("Size");
+        ui.label("Blocks");
         ui.label("View");
     });
     ui.separator();
 
+    let flattened = flatten_files_tree(&app_state.files, 0);
+    if flattened.is_empty() {
+        ui.label("No reconstructed files available.");
+        return;
+    }
+
     ScrollArea::vertical()
         .auto_shrink([false, false])
         .show(ui, |ui| {
-            for (idx, entry) in entries.iter().enumerate() {
+            for (idx, (file, depth)) in flattened.iter().enumerate() {
                 ui.horizontal(|ui| {
-                    if let Some(color) = badge_color(entry.log_level.as_ref()) {
-                        ui.colored_label(color, "!");
-                    } else {
-                        ui.label(" ");
-                    }
                     ui.label(idx.to_string());
-                    ui.label(entry.length.to_string());
-                    ui.colored_label(
-                        format_color(entry.detected_format),
-                        format!("{:?}", entry.detected_format),
-                    );
-
-                    match &entry.kind {
-                        TapDataKind::Raw(data) => {
-                            ui.label("Raw");
-                            ui.label("-");
-                            ui.label("-");
-                            ui.label(format!("{} bytes", data.len()));
-                        }
-                        TapDataKind::VmsBlock(block) => {
-                            ui.label("VMS");
-                            ui.label(block.phase.to_string());
-                            ui.label(block.sequence_number.to_string());
-                            ui.label(format!("{:#06X}", block.checksum));
-                        }
-                    }
-
+                    ui.add_space(*depth as f32 * 8.0);
+                    ui.label(sanitize_display(&file.path.to_string_path()));
+                    ui.label(format!("{:?}", file.format));
+                    ui.label(format!("{} bytes", file.size_bytes));
+                    ui.label(format!("{}", file.blocks.len()));
                     if ui.button("View").clicked() {
                         app_state.tap_state.selected_entry = Some(idx);
                     }
@@ -65,11 +45,12 @@ pub fn contents_table(ui: &mut egui::Ui, entries: &[TapEntry], app_state: &mut A
         });
 
     if let Some(idx) = app_state.tap_state.selected_entry {
-        if let Some(entry) = entries.get(idx) {
+        if let Some((file, _)) = flattened.get(idx) {
             let mut close = false;
-            let mut open = true;
             let ctx = ui.ctx().clone();
             let max_height = ctx.available_rect().height() * 0.9;
+            let mut open = true;
+            let bytes = collect_block_bytes(file, &app_state.blocks);
             Window::new("Hex Viewer")
                 .collapsible(false)
                 .resizable(true)
@@ -82,11 +63,12 @@ pub fn contents_table(ui: &mut egui::Ui, entries: &[TapEntry], app_state: &mut A
                         }
                     });
                     ui.separator();
-                    ui.label(sanitize_display(&format!("Entry {}", idx)));
-                    let bytes: Vec<u8> = match &entry.kind {
-                        TapDataKind::Raw(data) => data.clone(),
-                        TapDataKind::VmsBlock(block) => block.payload.clone(),
-                    };
+                    ui.label(sanitize_display(&file.path.to_string_path()));
+                    ui.label(format!("{:?}", file.format));
+                    for line in describe_metadata(file) {
+                        ui.label(line);
+                    }
+                    ui.separator();
                     ScrollArea::vertical()
                         .auto_shrink([false, false])
                         .show(ui, |ui| {
@@ -99,23 +81,5 @@ pub fn contents_table(ui: &mut egui::Ui, entries: &[TapEntry], app_state: &mut A
         } else {
             app_state.tap_state.selected_entry = None;
         }
-    }
-}
-
-fn badge_color(level: Option<&LogLevel>) -> Option<Color32> {
-    match level {
-        Some(LogLevel::Error) => Some(Color32::RED),
-        Some(LogLevel::Warning) => Some(Color32::YELLOW),
-        _ => None,
-    }
-}
-
-fn format_color(format: crate::tap::DetectedFormat) -> Color32 {
-    match format {
-        crate::tap::DetectedFormat::VmsBackup => Color32::GREEN,
-        crate::tap::DetectedFormat::Rsx11m => Color32::YELLOW,
-        crate::tap::DetectedFormat::Rt11 => Color32::from_rgb(0, 200, 200),
-        crate::tap::DetectedFormat::RstsE => Color32::BLUE,
-        crate::tap::DetectedFormat::Raw => Color32::GRAY,
     }
 }

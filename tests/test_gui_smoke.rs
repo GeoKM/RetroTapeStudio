@@ -42,7 +42,10 @@ fn gui_path_loads_real_vms_tape() {
         .summary
         .as_ref()
         .expect("summary populated after loading TAP");
-    assert!(summary.total_blocks > 0, "summary should include VMS blocks");
+    assert!(
+        summary.total_blocks > 0,
+        "summary should include VMS blocks"
+    );
     assert!(
         state.vms_fs.is_some(),
         "VMS directory tree should be built for files tab"

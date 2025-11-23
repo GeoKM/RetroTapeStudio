@@ -6,6 +6,7 @@ use egui;
 use rfd::FileDialog;
 
 use crate::backup::extract::{assemble_vms_files, build_directory_tree};
+use crate::core::reconstruct::reconstruct_all;
 use crate::log::parse::{correlate_log, parse_log};
 use crate::summary::compute_saveset_summary;
 use crate::tap::legacy::{read_tap_records, TapEntry};
@@ -40,6 +41,8 @@ pub fn set_tap_entries(entries: Vec<TapEntry>, state: &mut AppState) {
     state.tap_state.entries = entries;
     state.tap_state.selected_entry = None;
     state.selected_file = None;
+    state.file_hex_viewer = None;
+    state.files = reconstruct_all(&state.blocks);
     // Build VMS file structures for Files tab.
     state.vms_files = assemble_vms_files(&state.tap_state.entries);
     state.vms_fs = if state.vms_files.is_empty() {
@@ -67,6 +70,7 @@ pub fn input_tab(ui: &mut egui::Ui, state: &mut AppState) {
                             let detected = crate::core::detect::analyze_blocks(&mut blocks);
                             state.blocks = blocks;
                             state.detected_format = detected;
+                            state.files = reconstruct_all(&state.blocks);
                         }
                         Err(err) => tap_status = Some(format!("TAP load failed: {err}")),
                     }

@@ -1,10 +1,10 @@
-//! Files tab: displays assembled VMS files with metadata and a hex viewer modal for payloads.
+//! Files tab: displays reconstructed file tree with metadata and hex viewers.
 use egui::{self, Align, Layout, ScrollArea, Vec2, Window};
 
-use crate::backup::extract::VmsFile;
-use crate::backup::vms::{format_protection, RecordFormat};
+use crate::core::block::TapeBlock;
+use crate::core::file::{FileMetadata, TapeFile};
 use crate::utils::hex::format_hex;
-use crate::utils::text::{is_mostly_text, sanitize_display};
+use crate::utils::text::sanitize_display;
 
 use super::state::AppState;
 
@@ -12,29 +12,36 @@ pub fn files_tab(ui: &mut egui::Ui, state: &mut AppState) {
     ui.heading("Files");
     ui.separator();
 
+    let flattened = flatten_files_tree(&state.files, 0);
+
+    if flattened.is_empty() {
+        ui.label("No reconstructed files available.");
+        return;
+    }
+
     ScrollArea::vertical()
         .auto_shrink([false, false])
         .show(ui, |ui| {
-            for (idx, file) in state.vms_files.iter().enumerate() {
-                let sanitized_name = sanitize_display(&format!("{};{}", file.headers.full_name(), file.headers.version));
-                let payload_len = total_size(file);
-                let content_label = if is_mostly_text(&collect_payload_prefix(file, 512)) {
-                    "(text)"
-                } else {
-                    "(binary)"
-                };
-                let file_type = file_type_label(file);
-                ui.horizontal_wrapped(|ui| {
-                    ui.label(sanitized_name);
+            for (idx, (file, depth)) in flattened.iter().enumerate() {
+                ui.horizontal(|ui| {
+                    ui.add_space(*depth as f32 * 10.0);
+                    let label = if file.children.is_empty() {
+                        "File"
+                    } else {
+                        "Dir"
+                    };
+                    ui.label(label);
+                    ui.label(sanitize_display(&file.path.to_string_path()));
+                    ui.label(format!("{:?}", file.format));
+                    ui.label(format!("{} bytes", file.size_bytes));
                     ui.label(format!("blocks: {}", file.blocks.len()));
-                    ui.label(format!("payload: {} bytes", payload_len));
-                    ui.label(record_format_text(&file.headers.record_format));
-                    ui.label(format!("type: {}", file_type));
-                    ui.label(format!("UIC {:X}", file.headers.owner_uic));
-                    ui.label(content_label);
-                    if ui.button("View details").clicked() {
+                    if ui.button("Details").clicked() {
                         state.selected_file = Some(idx);
                         state.file_hex_viewer = None;
+                    }
+                    if !file.blocks.is_empty() && ui.button("Hex").clicked() {
+                        state.file_hex_viewer = Some(idx);
+                        state.selected_file = None;
                     }
                 });
                 ui.separator();
@@ -42,46 +49,22 @@ pub fn files_tab(ui: &mut egui::Ui, state: &mut AppState) {
         });
 
     if let Some(idx) = state.selected_file {
-        if let Some(file) = state.vms_files.get(idx) {
+        if let Some((file, _)) = flattened.get(idx) {
             let mut open_hex = false;
             let mut close_details = false;
             Window::new("File Details")
                 .collapsible(false)
                 .resizable(true)
                 .show(ui.ctx(), |ui| {
-                    let display_name =
-                        sanitize_display(&format!("{};{}", file.headers.full_name(), file.headers.version));
-                    ui.heading(display_name);
-                    ui.label(format!("Path: {}", sanitize_display(&file.path)));
-                    ui.label(format!(
-                        "Record format: {}",
-                        record_format_text(&file.headers.record_format)
-                    ));
-                    ui.label(format!(
-                        "Protection: {}",
-                        format_protection(file.headers.protection_mask)
-                    ));
-                    ui.label(format!("Owner UIC: {:X}", file.headers.owner_uic));
-                    if let Some(ext) = &file.headers.extended {
-                        ui.label(format!("Backup flags: {:?}", ext.backup_flags));
-                        ui.label(format!(
-                            "High precision time: {:?}",
-                            ext.high_precision_timestamp
-                        ));
-                        ui.label(format!("ACP attrs: {:?}", ext.acp_attributes));
-                        ui.label(format!("Journaling: {:?}", ext.journaling_flags));
-                        ui.label(format!("File ID: {:?}", ext.file_id));
-                        ui.label(format!("Sequence: {:?}", ext.sequence_number));
+                    ui.heading(sanitize_display(&file.path.to_string_path()));
+                    ui.label(format!("{:?}", file.format));
+                    ui.label(format!("Size: {} bytes", file.size_bytes));
+                    ui.label(format!("Blocks: {:?}", file.blocks));
+                    for line in describe_metadata(file) {
+                        ui.label(line);
                     }
                     ui.separator();
-                    ui.label("RMS Attributes");
-                    ui.label(format!(
-                        "RATTR: {} RATTNR: {} RATTNL: {}",
-                        file.headers.rms.rattr, file.headers.rms.rattnr, file.headers.rms.rattnl
-                    ));
-                    ui.label(format!("UIC: {:X}", file.headers.owner_uic));
-                    ui.separator();
-                    if ui.button("Open hex viewer").clicked() {
+                    if !file.blocks.is_empty() && ui.button("Open hex viewer").clicked() {
                         open_hex = true;
                     }
                     if ui.button("Close").clicked() {
@@ -101,10 +84,8 @@ pub fn files_tab(ui: &mut egui::Ui, state: &mut AppState) {
     }
 
     if let Some(idx) = state.file_hex_viewer {
-        if let Some(file) = state.vms_files.get(idx) {
-            let concatenated = collect_payload(file);
-            let name =
-                sanitize_display(&format!("{};{}", file.headers.full_name(), file.headers.version));
+        if let Some((file, _)) = flattened.get(idx) {
+            let bytes = collect_block_bytes(file, &state.blocks);
             let mut close = false;
             let ctx = ui.ctx().clone();
             let max_height = ctx.available_rect().height() * 0.9;
@@ -121,11 +102,11 @@ pub fn files_tab(ui: &mut egui::Ui, state: &mut AppState) {
                         }
                     });
                     ui.separator();
-                    ui.heading(&name);
+                    ui.heading(sanitize_display(&file.path.to_string_path()));
                     ScrollArea::vertical()
                         .auto_shrink([false, false])
                         .show(ui, |ui| {
-                            ui.monospace(format_hex(&concatenated));
+                            ui.monospace(format_hex(&bytes));
                         });
                     if ui.button("Close").clicked() {
                         close = true;
@@ -140,44 +121,45 @@ pub fn files_tab(ui: &mut egui::Ui, state: &mut AppState) {
     }
 }
 
-fn total_size(file: &VmsFile) -> usize {
-    file.blocks.iter().map(|b| b.payload.len()).sum()
-}
-
-fn record_format_text(rfm: &RecordFormat) -> &'static str {
-    match rfm {
-        RecordFormat::Udf => "UDF",
-        RecordFormat::Vfc => "VFC",
-        RecordFormat::Var => "VAR",
-        RecordFormat::Fix => "FIX",
-        RecordFormat::Unknown(_) => "UNKNOWN",
-    }
-}
-
-fn file_type_label(file: &VmsFile) -> String {
-    if file.headers.file_type.is_empty() {
-        "(unknown)".to_string()
-    } else {
-        file.headers.file_type.clone()
-    }
-}
-
-fn collect_payload(file: &VmsFile) -> Vec<u8> {
-    file.blocks.iter().flat_map(|b| b.payload.clone()).collect()
-}
-
-fn collect_payload_prefix(file: &VmsFile, limit: usize) -> Vec<u8> {
-    let mut data = Vec::new();
-    for block in &file.blocks {
-        if data.len() >= limit {
-            break;
-        }
-        for byte in &block.payload {
-            if data.len() >= limit {
-                break;
-            }
-            data.push(*byte);
+pub fn flatten_files_tree(files: &[TapeFile], depth: usize) -> Vec<(TapeFile, usize)> {
+    let mut flat = Vec::new();
+    for file in files {
+        flat.push((file.clone(), depth));
+        if !file.children.is_empty() {
+            flat.extend(flatten_files_tree(&file.children, depth + 1));
         }
     }
-    data
+    flat
+}
+
+pub fn describe_metadata(file: &TapeFile) -> Vec<String> {
+    match &file.metadata {
+        FileMetadata::Rsx(meta) => vec![
+            format!("UIC {:o},{:o}", meta.uic.0, meta.uic.1),
+            format!("Protection: {:o}", meta.protection),
+            format!("Directory: {}", meta.is_directory),
+        ],
+        FileMetadata::Rt11(meta) => vec![
+            format!("Start block: {}", meta.start_block),
+            format!("Length (blocks): {}", meta.length_blocks),
+            format!("Extension: {}", meta.ext),
+        ],
+        FileMetadata::Rsts(meta) => vec![
+            format!("Owner UIC {:o},{:o}", meta.owner_uic.0, meta.owner_uic.1),
+            format!("Blocks: {}", meta.blocks),
+            format!("Status: {:#06X}", meta.status),
+        ],
+        FileMetadata::Vms(meta) => vec![format!("VMS metadata placeholder: {}", meta.placeholder)],
+        FileMetadata::Raw => vec!["Raw block".to_string()],
+    }
+}
+
+pub fn collect_block_bytes(file: &TapeFile, blocks: &[TapeBlock]) -> Vec<u8> {
+    let mut bytes = Vec::new();
+    for idx in &file.blocks {
+        if let Some(block) = blocks.iter().find(|b| b.index == *idx) {
+            bytes.extend_from_slice(block.raw.as_ref());
+        }
+    }
+    bytes
 }

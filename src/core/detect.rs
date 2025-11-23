@@ -1,6 +1,6 @@
 use crate::core::block::{
-    TapeBlock, BlockClassification, TapeFormat, VmsBlockKind, RsxBlockKind, Rt11BlockKind,
-    RstsBlockKind,
+    BlockClassification, RstsBlockKind, RsxBlockKind, Rt11BlockKind, TapeBlock, TapeFormat,
+    VmsBlockKind,
 };
 
 pub fn detect_block_format(block: &TapeBlock) -> BlockClassification {

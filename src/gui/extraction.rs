@@ -5,9 +5,9 @@ use std::fs;
 use std::path::PathBuf;
 
 use crate::backup::extract::{assemble_files, assemble_vms_files, ExtractedFile, VmsFile};
+use crate::tap::legacy::TapEntry;
 use crate::utils::hex::format_hex;
 use crate::utils::text::{is_mostly_text, sanitize_display};
-use crate::tap::legacy::TapEntry;
 
 #[derive(Debug, Default, Clone)]
 pub struct ExtractionState {

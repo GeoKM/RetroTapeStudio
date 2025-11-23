@@ -1,6 +1,7 @@
 //! Shared GUI state structures and active tab tracking.
 use crate::backup::extract::{VmsFile, VmsFileSystem};
 use crate::core::block::{TapeBlock, TapeFormat};
+use crate::core::file::TapeFile;
 use crate::gui::extraction::ExtractionState;
 use crate::log::parse::LogData;
 use crate::summary::SaveSetSummary;
@@ -20,6 +21,7 @@ pub enum MainTab {
 pub struct AppState {
     pub blocks: Vec<TapeBlock>,
     pub detected_format: TapeFormat,
+    pub files: Vec<TapeFile>,
     pub tap_state: TapState,
     pub log_state: LogState,
     pub vms_files: Vec<VmsFile>,
@@ -58,6 +60,7 @@ impl Default for AppState {
         Self {
             blocks: Vec::new(),
             detected_format: TapeFormat::Unknown,
+            files: Vec::new(),
             tap_state: TapState::default(),
             log_state: LogState::default(),
             vms_files: Vec::new(),

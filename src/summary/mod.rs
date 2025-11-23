@@ -128,17 +128,8 @@ fn log_stats(log: &LogData) -> (usize, usize, Option<String>, Option<String>, Op
             LogLevel::Info => {}
         }
     }
-    let tracks = log
-        .metadata
-        .get("Tracks")
-        .map(|s| sanitize_display(s));
-    let density = log
-        .metadata
-        .get("Density")
-        .map(|s| sanitize_display(s));
-    let blocks_read = log
-        .metadata
-        .get("Blocks read")
-        .map(|s| sanitize_display(s));
+    let tracks = log.metadata.get("Tracks").map(|s| sanitize_display(s));
+    let density = log.metadata.get("Density").map(|s| sanitize_display(s));
+    let blocks_read = log.metadata.get("Blocks read").map(|s| sanitize_display(s));
     (warnings, errors, tracks, density, blocks_read)
 }

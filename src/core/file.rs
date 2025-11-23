@@ -34,7 +34,6 @@ pub enum FileMetadata {
     Raw,
 }
 
-// Placeholder metadata structs - filled in during Stage 6.
 #[derive(Debug, Clone)]
 pub struct VmsFileMetadata {
     pub placeholder: bool,
@@ -42,15 +41,21 @@ pub struct VmsFileMetadata {
 
 #[derive(Debug, Clone)]
 pub struct RsxFileMetadata {
-    pub placeholder: bool,
+    pub uic: (u16, u16),
+    pub protection: u16,
+    pub is_directory: bool,
 }
 
 #[derive(Debug, Clone)]
 pub struct Rt11FileMetadata {
-    pub placeholder: bool,
+    pub start_block: u16,
+    pub length_blocks: u16,
+    pub ext: String,
 }
 
 #[derive(Debug, Clone)]
 pub struct RstsFileMetadata {
-    pub placeholder: bool,
+    pub owner_uic: (u16, u16),
+    pub blocks: u16,
+    pub status: u16,
 }

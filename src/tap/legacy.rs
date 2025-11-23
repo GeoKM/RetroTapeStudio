@@ -33,8 +33,7 @@ pub fn read_tap_records(data: &[u8]) -> TapeResult<Vec<TapEntry>> {
     let mut offset = 0usize;
 
     while offset + 4 <= data.len() {
-        let record_len =
-            u32::from_le_bytes(data[offset..offset + 4].try_into().unwrap()) as usize;
+        let record_len = u32::from_le_bytes(data[offset..offset + 4].try_into().unwrap()) as usize;
         offset += 4;
 
         if record_len == 0 {
@@ -82,8 +81,7 @@ pub fn read_tap_records(data: &[u8]) -> TapeResult<Vec<TapEntry>> {
         offset += record_len + padding;
 
         if offset + 4 <= data.len() {
-            let trailer =
-                u32::from_le_bytes(data[offset..offset + 4].try_into().unwrap()) as usize;
+            let trailer = u32::from_le_bytes(data[offset..offset + 4].try_into().unwrap()) as usize;
             if trailer == record_len {
                 offset += 4;
             }

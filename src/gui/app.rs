@@ -23,10 +23,7 @@ pub fn render_app(ctx: &egui::Context, state: &mut AppState) {
         ui.separator();
         match state.current_tab {
             MainTab::Input => input_tab(ui, state),
-            MainTab::Contents => {
-                let entries = state.tap_state.entries.clone();
-                contents_table(ui, &entries, state)
-            }
+            MainTab::Contents => contents_table(ui, state),
             MainTab::Extraction => {
                 let entries = state.tap_state.entries.clone();
                 extraction_tab(ui, &entries, &mut state.extraction)

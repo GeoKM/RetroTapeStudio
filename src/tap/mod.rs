@@ -1,6 +1,6 @@
 //! TAP module: parses DEC-style `.TAP` records, detects formats, and surfaces tape data for downstream processing.
-pub mod reader;
 pub mod legacy;
+pub mod reader;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum DetectedFormat {
