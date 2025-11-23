@@ -1,6 +1,8 @@
 //! Contents tab: lists reconstructed tape files with quick hex viewing.
 use egui::{self, Align, Layout, ScrollArea, Vec2, Window};
+use rfd::FileDialog;
 
+use crate::core::extract::extract_file;
 use crate::utils::hex::format_hex;
 use crate::utils::text::sanitize_display;
 
@@ -36,6 +38,19 @@ pub fn contents_table(ui: &mut egui::Ui, app_state: &mut AppState) {
                     ui.label(format!("{:?}", file.format));
                     ui.label(format!("{} bytes", file.size_bytes));
                     ui.label(format!("{}", file.blocks.len()));
+                    if ui.button("Extract").clicked() {
+                        if let Some(dir) = FileDialog::new().pick_folder() {
+                            match extract_file(file, &app_state.blocks, dir.as_path()) {
+                                Ok(_) => {
+                                    app_state.summary_status =
+                                        format!("Extracted to {}", dir.display());
+                                }
+                                Err(err) => {
+                                    app_state.summary_status = format!("Extract failed: {}", err);
+                                }
+                            }
+                        }
+                    }
                     if ui.button("View").clicked() {
                         app_state.tap_state.selected_entry = Some(idx);
                     }
@@ -81,5 +96,10 @@ pub fn contents_table(ui: &mut egui::Ui, app_state: &mut AppState) {
         } else {
             app_state.tap_state.selected_entry = None;
         }
+    }
+
+    if !app_state.summary_status.is_empty() {
+        ui.separator();
+        ui.label(&app_state.summary_status);
     }
 }

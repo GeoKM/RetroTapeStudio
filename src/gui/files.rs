@@ -1,7 +1,9 @@
 //! Files tab: displays reconstructed file tree with metadata and hex viewers.
 use egui::{self, Align, Layout, ScrollArea, Vec2, Window};
+use rfd::FileDialog;
 
 use crate::core::block::TapeBlock;
+use crate::core::extract::extract_file;
 use crate::core::file::{FileMetadata, TapeFile};
 use crate::utils::hex::format_hex;
 use crate::utils::text::sanitize_display;
@@ -35,6 +37,19 @@ pub fn files_tab(ui: &mut egui::Ui, state: &mut AppState) {
                     ui.label(format!("{:?}", file.format));
                     ui.label(format!("{} bytes", file.size_bytes));
                     ui.label(format!("blocks: {}", file.blocks.len()));
+                    if ui.button("Extract").clicked() {
+                        if let Some(dir) = FileDialog::new().pick_folder() {
+                            match extract_file(file, &state.blocks, dir.as_path()) {
+                                Ok(_) => {
+                                    state.summary_status =
+                                        format!("Extracted to {}", dir.display());
+                                }
+                                Err(err) => {
+                                    state.summary_status = format!("Extract failed: {}", err);
+                                }
+                            }
+                        }
+                    }
                     if ui.button("Details").clicked() {
                         state.selected_file = Some(idx);
                         state.file_hex_viewer = None;
@@ -118,6 +133,11 @@ pub fn files_tab(ui: &mut egui::Ui, state: &mut AppState) {
         } else {
             state.file_hex_viewer = None;
         }
+    }
+
+    if !state.summary_status.is_empty() {
+        ui.separator();
+        ui.label(&state.summary_status);
     }
 }
 
