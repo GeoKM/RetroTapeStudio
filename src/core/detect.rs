@@ -6,6 +6,11 @@ use crate::core::block::{
 pub fn detect_block_format(block: &TapeBlock) -> BlockClassification {
     let data = block.raw.as_ref();
 
+    if let Some(_vms) = crate::core::vms::block::classify_vms_block(block.raw.as_ref(), block.index)
+    {
+        return BlockClassification::Vms(crate::core::block::VmsBlockKind::Placeholder);
+    }
+
     if data.len() >= 20 {
         // VMS backup detection
         let record_type = data[0];

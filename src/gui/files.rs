@@ -192,7 +192,7 @@ pub fn describe_metadata(file: &TapeFile) -> Vec<String> {
             format!("Status: 0x{:04X}", meta.status),
             format!("Blocks: {}", meta.blocks),
         ],
-        FileMetadata::Vms(_meta) => vec!["VMS metadata placeholder".to_string()],
+        FileMetadata::Vms(_) => vec!["VMS BACKUP File".to_string()],
         FileMetadata::Raw => vec!["Raw data, no metadata".to_string()],
     }
 }

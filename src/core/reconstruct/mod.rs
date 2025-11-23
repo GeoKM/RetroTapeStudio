@@ -5,6 +5,7 @@ use crate::core::file::TapeFile;
 
 pub fn reconstruct_all(blocks: &[TapeBlock]) -> Vec<TapeFile> {
     match detect_dominant_format(blocks) {
+        TapeFormat::Vms => crate::core::vms::reconstruct::reconstruct_vms(blocks),
         TapeFormat::Rsx => builder::reconstruct_rsx(blocks),
         TapeFormat::Rt11 => builder::reconstruct_rt11(blocks),
         TapeFormat::Rsts => builder::reconstruct_rsts(blocks),
@@ -33,6 +34,7 @@ fn detect_dominant_format(blocks: &[TapeBlock]) -> TapeFormat {
         Some(0) => Rsx,
         Some(1) => Rt11,
         Some(2) => Rsts,
+        Some(3) => Vms,
         _ => Raw,
     }
 }
