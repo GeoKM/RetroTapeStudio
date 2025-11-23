@@ -3,7 +3,7 @@ use egui::{self, Align, Layout, ScrollArea, Vec2, Window};
 use rfd::FileDialog;
 
 use crate::core::extract::extract_file;
-use crate::utils::hex::format_hex;
+use crate::utils::hex::format_hex_with_ascii;
 use crate::utils::text::sanitize_display;
 
 use super::files::{collect_block_bytes, describe_metadata, flatten_files_tree};
@@ -12,12 +12,19 @@ use super::state::AppState;
 /// Render a table of reconstructed files inside the Contents tab.
 pub fn contents_table(ui: &mut egui::Ui, app_state: &mut AppState) {
     ui.horizontal(|ui| {
-        ui.label("Index");
+        ui.label("Idx");
+        ui.add_space(6.0);
+        ui.label("Type");
+        ui.add_space(6.0);
         ui.label("Path");
+        ui.add_space(6.0);
         ui.label("Format");
+        ui.add_space(6.0);
         ui.label("Size");
+        ui.add_space(6.0);
         ui.label("Blocks");
-        ui.label("View");
+        ui.add_space(6.0);
+        ui.label("Actions");
     });
     ui.separator();
 
@@ -32,12 +39,24 @@ pub fn contents_table(ui: &mut egui::Ui, app_state: &mut AppState) {
         .show(ui, |ui| {
             for (idx, (file, depth)) in flattened.iter().enumerate() {
                 ui.horizontal(|ui| {
-                    ui.label(idx.to_string());
-                    ui.add_space(*depth as f32 * 8.0);
+                    ui.label(format!("{:>4}", idx));
+                    ui.add_space(8.0);
+                    ui.add_space(*depth as f32 * 10.0);
+                    let icon = if file.children.is_empty() {
+                        "\u{1F4C4}"
+                    } else {
+                        "\u{1F4C1}"
+                    };
+                    ui.label(icon);
+                    ui.add_space(6.0);
                     ui.label(sanitize_display(&file.path.to_string_path()));
+                    ui.add_space(8.0);
                     ui.label(format!("{:?}", file.format));
+                    ui.add_space(8.0);
                     ui.label(format!("{} bytes", file.size_bytes));
+                    ui.add_space(8.0);
                     ui.label(format!("{}", file.blocks.len()));
+                    ui.add_space(8.0);
                     if ui.button("Extract").clicked() {
                         if let Some(dir) = FileDialog::new().pick_folder() {
                             match extract_file(file, &app_state.blocks, dir.as_path()) {
@@ -79,7 +98,11 @@ pub fn contents_table(ui: &mut egui::Ui, app_state: &mut AppState) {
                     });
                     ui.separator();
                     ui.label(sanitize_display(&file.path.to_string_path()));
-                    ui.label(format!("{:?}", file.format));
+                    ui.label(format!("Format: {:?}", file.format));
+                    ui.label(format!("Size: {} bytes", file.size_bytes));
+                    ui.label(format!("Blocks: {}", file.blocks.len()));
+                    ui.separator();
+                    ui.label("Metadata:");
                     for line in describe_metadata(file) {
                         ui.label(line);
                     }
@@ -87,7 +110,7 @@ pub fn contents_table(ui: &mut egui::Ui, app_state: &mut AppState) {
                     ScrollArea::vertical()
                         .auto_shrink([false, false])
                         .show(ui, |ui| {
-                            ui.monospace(format_hex(&bytes));
+                            ui.monospace(format_hex_with_ascii(&bytes));
                         });
                 });
             if close || !open {

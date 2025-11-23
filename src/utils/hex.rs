@@ -1,7 +1,10 @@
-/// Format a slice of bytes with paired hex and ASCII columns.
-///
-/// Printable ASCII is 0x20..=0x7E; everything else renders as `.`.
+/// Legacy hex formatter kept for compatibility.
 pub fn format_hex(data: &[u8]) -> String {
+    format_hex_with_ascii(data)
+}
+
+/// Format bytes with address, grouped hex, and ASCII columns.
+pub fn format_hex_with_ascii(data: &[u8]) -> String {
     let mut out = String::new();
     for (row, chunk) in data.chunks(16).enumerate() {
         let offset = row * 16;
@@ -14,14 +17,13 @@ pub fn format_hex(data: &[u8]) -> String {
             }
         }
 
-        // Pad hex column for short final rows to keep ASCII aligned.
         let missing = 16usize.saturating_sub(chunk.len());
         if missing > 0 {
-            for _ in 0..missing {
+            for pad_idx in 0..missing {
+                if chunk.len() + pad_idx == 8 {
+                    out.push(' ');
+                }
                 out.push_str("   ");
-            }
-            if chunk.len() <= 8 {
-                out.push(' ');
             }
         }
 
@@ -33,14 +35,12 @@ pub fn format_hex(data: &[u8]) -> String {
             };
             out.push(ch);
         }
-        // Pad ASCII column when chunk shorter than 16.
-        for _ in chunk.len()..16 {
-            out.push('.');
+        for _ in 0..missing {
+            out.push(' ');
         }
         out.push_str("|\n");
     }
     if !out.is_empty() {
-        // Remove trailing newline for cleaner display.
         out.pop();
     }
     out

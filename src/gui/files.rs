@@ -5,7 +5,7 @@ use rfd::FileDialog;
 use crate::core::block::TapeBlock;
 use crate::core::extract::extract_file;
 use crate::core::file::{FileMetadata, TapeFile};
-use crate::utils::hex::format_hex;
+use crate::utils::hex::format_hex_with_ascii;
 use crate::utils::text::sanitize_display;
 
 use super::state::AppState;
@@ -26,17 +26,24 @@ pub fn files_tab(ui: &mut egui::Ui, state: &mut AppState) {
         .show(ui, |ui| {
             for (idx, (file, depth)) in flattened.iter().enumerate() {
                 ui.horizontal(|ui| {
+                    ui.label(format!("{:>4}", idx));
+                    ui.add_space(8.0);
                     ui.add_space(*depth as f32 * 10.0);
-                    let label = if file.children.is_empty() {
-                        "File"
+                    let icon = if file.children.is_empty() {
+                        "\u{1F4C4}"
                     } else {
-                        "Dir"
+                        "\u{1F4C1}"
                     };
-                    ui.label(label);
+                    ui.label(icon);
+                    ui.add_space(4.0);
                     ui.label(sanitize_display(&file.path.to_string_path()));
+                    ui.add_space(8.0);
                     ui.label(format!("{:?}", file.format));
+                    ui.add_space(8.0);
                     ui.label(format!("{} bytes", file.size_bytes));
-                    ui.label(format!("blocks: {}", file.blocks.len()));
+                    ui.add_space(8.0);
+                    ui.label(format!("{} blk", file.blocks.len()));
+                    ui.add_space(8.0);
                     if ui.button("Extract").clicked() {
                         if let Some(dir) = FileDialog::new().pick_folder() {
                             match extract_file(file, &state.blocks, dir.as_path()) {
@@ -72,9 +79,15 @@ pub fn files_tab(ui: &mut egui::Ui, state: &mut AppState) {
                 .resizable(true)
                 .show(ui.ctx(), |ui| {
                     ui.heading(sanitize_display(&file.path.to_string_path()));
-                    ui.label(format!("{:?}", file.format));
+                    ui.label(format!(
+                        "Path: {}",
+                        sanitize_display(&file.path.to_string_path())
+                    ));
+                    ui.label(format!("Format: {:?}", file.format));
                     ui.label(format!("Size: {} bytes", file.size_bytes));
-                    ui.label(format!("Blocks: {:?}", file.blocks));
+                    ui.label(format!("Blocks: {}", file.blocks.len()));
+                    ui.separator();
+                    ui.label("Metadata:");
                     for line in describe_metadata(file) {
                         ui.label(line);
                     }
@@ -121,7 +134,7 @@ pub fn files_tab(ui: &mut egui::Ui, state: &mut AppState) {
                     ScrollArea::vertical()
                         .auto_shrink([false, false])
                         .show(ui, |ui| {
-                            ui.monospace(format_hex(&bytes));
+                            ui.monospace(format_hex_with_ascii(&bytes));
                         });
                     if ui.button("Close").clicked() {
                         close = true;
@@ -155,22 +168,32 @@ pub fn flatten_files_tree(files: &[TapeFile], depth: usize) -> Vec<(TapeFile, us
 pub fn describe_metadata(file: &TapeFile) -> Vec<String> {
     match &file.metadata {
         FileMetadata::Rsx(meta) => vec![
-            format!("UIC {:o},{:o}", meta.uic.0, meta.uic.1),
-            format!("Protection: {:o}", meta.protection),
             format!("Directory: {}", meta.is_directory),
+            format!("UIC {:03o},{:03o}", meta.uic.0, meta.uic.1),
+            format!("Protection: {:o}", meta.protection),
         ],
         FileMetadata::Rt11(meta) => vec![
+            format!(
+                "File: {}",
+                sanitize_display(&if meta.ext.is_empty() {
+                    file.path.to_string_path()
+                } else {
+                    format!("{}.{}", file.path.to_string_path(), meta.ext)
+                })
+            ),
             format!("Start block: {}", meta.start_block),
             format!("Length (blocks): {}", meta.length_blocks),
-            format!("Extension: {}", meta.ext),
         ],
         FileMetadata::Rsts(meta) => vec![
-            format!("Owner UIC {:o},{:o}", meta.owner_uic.0, meta.owner_uic.1),
+            format!(
+                "Owner UIC {:03o},{:03o}",
+                meta.owner_uic.0, meta.owner_uic.1
+            ),
+            format!("Status: 0x{:04X}", meta.status),
             format!("Blocks: {}", meta.blocks),
-            format!("Status: {:#06X}", meta.status),
         ],
-        FileMetadata::Vms(meta) => vec![format!("VMS metadata placeholder: {}", meta.placeholder)],
-        FileMetadata::Raw => vec!["Raw block".to_string()],
+        FileMetadata::Vms(_meta) => vec!["VMS metadata placeholder".to_string()],
+        FileMetadata::Raw => vec!["Raw data, no metadata".to_string()],
     }
 }
 
